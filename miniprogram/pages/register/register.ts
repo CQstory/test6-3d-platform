@@ -1,30 +1,37 @@
 import { userService } from '../../services/user-service'
 
-Component({
+Page({
   data: {
-    username: '',
+    phone: '',
     password: '',
     confirmPassword: '',
     errorMsg: '',
+    isSubmitting: false,
   },
-  methods: {
-    onUsernameInput(e: any) { this.setData({ username: e.detail.value }) },
-    onPasswordInput(e: any) { this.setData({ password: e.detail.value }) },
-    onConfirmPasswordInput(e: any) { this.setData({ confirmPassword: e.detail.value }) },
-    async onRegister() {
-      const { username, password, confirmPassword } = this.data
-      if (!username.trim()) { this.setData({ errorMsg: '请输入用户名' }); return }
-      if (username.trim().length < 3) { this.setData({ errorMsg: '用户名至少3个字符' }); return }
-      if (!password) { this.setData({ errorMsg: '请输入密码' }); return }
-      if (password !== confirmPassword) { this.setData({ errorMsg: '两次密码不一致' }); return }
-      const result = await userService.register(username.trim(), password)
-      if (result.success) {
-        wx.showToast({ title: '注册成功', icon: 'success' })
-        setTimeout(() => wx.navigateBack({ delta: 1 }), 1000)
-      } else {
-        this.setData({ errorMsg: result.msg })
-      }
-    },
-    onGoLogin() { wx.navigateBack({ delta: 1 }) },
+  onLoad() {
+    const savedPhone = wx.getStorageSync('login_phone') || ''
+    if (savedPhone) this.setData({ phone: savedPhone })
   },
+  onPhoneInput(e: any) { this.setData({ phone: e.detail.value, errorMsg: '' }) },
+  onPasswordInput(e: any) { this.setData({ password: e.detail.value, errorMsg: '' }) },
+  onConfirmPwdInput(e: any) { this.setData({ confirmPassword: e.detail.value, errorMsg: '' }) },
+
+  async onRegister() {
+    const { phone, password, confirmPassword } = this.data
+    if (!phone.trim()) { this.setData({ errorMsg: '请输入手机号' }); return }
+    if (password.length < 6) { this.setData({ errorMsg: '密码至少6位' }); return }
+    if (password !== confirmPassword) { this.setData({ errorMsg: '两次密码不一致' }); return }
+    this.setData({ isSubmitting: true, errorMsg: '' })
+    const result = await userService.register(phone.trim(), password)
+    this.setData({ isSubmitting: false })
+    if (result.success) {
+      wx.showToast({ title: '注册成功', icon: 'success' })
+      setTimeout(() => wx.switchTab({ url: '/pages/index/index' }), 1000)
+    } else {
+      this.setData({ errorMsg: result.msg })
+    }
+  },
+
+  onGoBack() { wx.navigateBack({ delta: 1 }) },
+  onGoLogin() { wx.navigateTo({ url: '/pages/login/login' }) },
 })

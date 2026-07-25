@@ -23,9 +23,20 @@ if (typeof g.self === 'undefined') {
 // 安全地设置 document（最小实现）
 var _listeners = {}
 var _doc = {
+  // 防止 IDE 将 document 转为 URL 时出现 [object Object] 错误
+  toString: function() { return '[object HTMLDocument]' },
+  documentElement: null,
+  body: null,
+  head: null,
+  // DOM 属性
   visibilityState: 'visible',
   hidden: false,
   readyState: 'complete',
+  // URL 相关（防止 IDE 内部路径解析崩溃）
+  location: { href: '', protocol: 'https:', host: '', hostname: '', pathname: '', search: '', hash: '', replace: function(){} },
+  URL: '',
+  baseURI: '',
+  // 事件方法
   addEventListener: function(t, fn) {
     if (!_listeners[t]) _listeners[t] = []
     _listeners[t].push(fn)
@@ -259,7 +270,10 @@ var win = g.window
 win.HTMLCanvasElement = null
 win.Image = createFakeImage
 win.XMLHttpRequest = FakeXMLHttpRequest
-win.document = _doc
+// 不覆盖 IDE 已有的 document，仅在其不存在时设置（避免破坏 IDE 内部路径解析）
+if (typeof win.document === 'undefined') {
+  win.document = _doc
+}
 
 // URL
 if (!win.URL) {
@@ -359,6 +373,7 @@ module.exports = {
     if (typeof wx === 'undefined' || !wx.request) {
       return reject(new Error('wx.request not available'))
     }
+    console.log('[weapp-adapter] Downloading via wx.request:', url)
     var timedOut = false
     var requestTask = wx.request({
       url: url,
@@ -366,11 +381,34 @@ module.exports = {
       timeout: 30000,
       success: function(res) {
         if (timedOut) return
-        if (res.statusCode === 200) resolve(res.data)
-        else reject(new Error('Download via request failed: HTTP ' + res.statusCode))
+        console.log('[weapp-adapter] wx.request success, status:', res.statusCode, 'data type:', typeof res.data)
+        if (res.statusCode === 200) {
+          var data = res.data
+          // IDE 模拟器中可能返回 Node.js Buffer 而非 ArrayBuffer
+          if (data && typeof data === 'object' && data.buffer instanceof ArrayBuffer) {
+            console.log('[weapp-adapter] Converting Buffer to ArrayBuffer, length:', data.byteLength)
+            data = data.buffer
+          }
+          if (typeof data === 'string') {
+            var buf = new ArrayBuffer(data.length)
+            var view = new Uint8Array(buf)
+            for (var i = 0; i < data.length; i++) view[i] = data.charCodeAt(i) & 0xff
+            data = buf
+          }
+          if (data instanceof ArrayBuffer && data.byteLength > 0) {
+            console.log('[weapp-adapter] Downloaded', data.byteLength, 'bytes')
+            resolve(data)
+          } else {
+            console.error('[weapp-adapter] Invalid data after download:', typeof data, data && data.byteLength)
+            reject(new Error('Downloaded empty or invalid data (type=' + typeof data + ', len=' + (data ? data.byteLength : 'N/A') + ')'))
+          }
+        } else {
+          reject(new Error('Download via request failed: HTTP ' + res.statusCode))
+        }
       },
       fail: function(err) {
         if (timedOut) return
+        console.error('[weapp-adapter] wx.request failed:', err)
         reject(new Error('Download request failed: ' + (err.errMsg || 'unknown')))
       }
     })
@@ -384,7 +422,9 @@ module.exports = {
   },
   downloadBinary: function(url) {
     var self = this
+    console.log('[weapp-adapter] downloadBinary:', url)
     return new Promise(function(resolve, reject) {
+      // 优先尝试 wx.downloadFile（IDE 中更稳定，且 SDK report 能正常追踪）
       if (typeof wx !== 'undefined' && wx.downloadFile) {
         var timedOut = false
         var downloadTask = wx.downloadFile({
@@ -392,10 +432,12 @@ module.exports = {
           timeout: 30000,
           success: function(res) {
             if (timedOut) return
+            console.log('[weapp-adapter] wx.downloadFile success, status:', res.statusCode)
             if (res.statusCode === 200) {
               try {
                 var fs = wx.getFileSystemManager()
                 var data = fs.readFileSync(res.tempFilePath)
+                console.log('[weapp-adapter] File read from temp, size:', data.byteLength)
                 resolve(data)
               } catch (e) {
                 console.warn('[weapp-adapter] fs.readFileSync failed, retrying with wx.request:', e)

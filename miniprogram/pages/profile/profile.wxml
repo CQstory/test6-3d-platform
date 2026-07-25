@@ -1,32 +1,43 @@
-<view class="page">
-  <top-bar title="我的" />
-  <view class="page-content">
-    <view class="user-card">
-      <image class="user-avatar" src="https://api.dicebear.com/8.x/shapes/svg?seed=user" mode="aspectFill" />
-      <text class="user-name">{{userInfo ? userInfo.username : '未登录'}}</text>
-      <view class="login-btns" wx:if="{{!userInfo}}">
-        <button class="btn-login" bindtap="onGoLogin">登录</button>
-        <button class="btn-register" bindtap="onGoRegister">注册</button>
-      </view>
+<view class="profile-page">
+  <view class="profile-bg"></view>
+
+  <!-- 用户信息卡片 -->
+  <view class="user-card">
+    <image class="avatar" src="{{userInfo.avatar || 'https://api.dicebear.com/8.x/shapes/svg?seed=user'}}" mode="aspectFill" />
+    <text class="nickname">{{isLoggedIn ? userInfo.nickname : '未登录'}}</text>
+    <text class="sub-text" wx:if="{{isLoggedIn && userInfo.phone}}">{{userInfo.phone}}</text>
+    <text class="sub-text" wx:if="{{!isLoggedIn}}">登录后体验完整功能</text>
+
+    <view class="login-btns" wx:if="{{!isLoggedIn}}">
+      <button class="btn-primary" bindtap="onGoLogin">立即登录</button>
+      <button class="btn-ghost" bindtap="onGoRegister">注册账号</button>
     </view>
-    <view class="menu-list">
-      <view class="menu-item" bindtap="onGoFavorites">
-        <text class="menu-icon">❤️</text>
-        <text class="menu-label">我的收藏</text>
-        <text class="menu-arrow">›</text>
-      </view>
-      <view class="menu-item" bindtap="onGoPricing">
-        <text class="menu-icon">💎</text>
-        <text class="menu-label">套餐定价</text>
-        <text class="menu-arrow">›</text>
-      </view>
-      <view class="menu-item" bindtap="onGoShopSettings">
-        <text class="menu-icon">⚙️</text>
-        <text class="menu-label">店铺设置</text>
-        <text class="menu-arrow">›</text>
-      </view>
-    </view>
-    <view class="bottom-spacer"></view>
   </view>
-  <tab-bar active="profile" />
+
+  <!-- 菜单列表 -->
+  <view class="menu-list">
+    <view class="menu-item" bindtap="onGoFavorites">
+      <text class="menu-icon">❤️</text>
+      <text class="menu-label">我的收藏</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="onGoPricing">
+      <text class="menu-icon">💎</text>
+      <text class="menu-label">套餐定价</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="onGoShopSettings">
+      <text class="menu-icon">⚙️</text>
+      <text class="menu-label">店铺设置</text>
+      <text class="menu-arrow">›</text>
+    </view>
+
+    <!-- 退出登录（仅已登录可见） -->
+    <view wx:if="{{isLoggedIn}}" class="menu-item logout-item" bindtap="onMenuTap" data-key="logout">
+      <text class="menu-icon">🚪</text>
+      <text class="menu-label logout-label">退出登录</text>
+      <text class="menu-arrow">›</text>
+    </view>
+  </view>
 </view>
+<tab-bar active="profile" />

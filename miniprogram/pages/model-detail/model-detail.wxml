@@ -1,4 +1,4 @@
-<view class="page">
+<view class="page" bindtap="onPageTap">
   <top-bar title="{{model.name || '模型详情'}}" showBack="{{true}}" />
   <view class="page-content">
     <image class="detail-image" src="{{model.thumbnail}}" mode="aspectFill" />

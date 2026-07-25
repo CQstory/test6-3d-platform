@@ -1,5 +1,5 @@
 {
-  "libVersion": "trial",
+  "libVersion": "3.16.2",
   "setting": {
     "skylineRenderEnable": true,
     "urlCheck": false,

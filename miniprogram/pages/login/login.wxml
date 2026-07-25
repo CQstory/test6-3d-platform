@@ -1,24 +1,53 @@
-<view class="page">
-  <top-bar title="登录" showBack="{{true}}" />
-  <view class="page-content">
-    <view class="form-card">
-      <text class="form-title">欢迎回来</text>
-      <view class="input-group">
-        <text class="input-label">用户名</text>
-        <input class="form-input" placeholder="请输入用户名" value="{{username}}" bindinput="onUsernameInput" />
-      </view>
-      <view class="input-group">
-        <text class="input-label">密码</text>
-        <input class="form-input" placeholder="请输入密码" password="{{true}}" value="{{password}}" bindinput="onPasswordInput" />
-      </view>
-      <view class="error-tip" wx:if="{{errorMsg}}">
-        <text>{{errorMsg}}</text>
-      </view>
-      <button class="btn-submit" bindtap="onLogin">登录</button>
-      <view class="form-links">
-        <text bindtap="onGoRegister">注册账号</text>
-        <text bindtap="onGoReset">忘记密码</text>
-      </view>
+<view class="login-page">
+  <view class="login-bg"></view>
+  <view class="login-top">
+    <view class="back-btn" bindtap="onGoBack">
+      <text class="back-icon">←</text>
     </view>
+    <view class="logo-area">
+      <view class="logo-icon">🧊</view>
+      <view class="logo-title">3D模型平台</view>
+      <view class="logo-sub">探索无限创意</view>
+    </view>
+  </view>
+
+  <view class="login-card">
+    <text class="card-title">欢迎回来</text>
+
+    <view class="input-group">
+      <text class="input-label">手机号</text>
+      <input class="form-input" type="number" placeholder="请输入手机号"
+             maxlength="11" value="{{phone}}" bindinput="onPhoneInput" />
+    </view>
+    <view class="input-group">
+      <text class="input-label">密码</text>
+      <input class="form-input" placeholder="请输入密码" password="{{true}}"
+             value="{{password}}" bindinput="onPasswordInput" />
+    </view>
+    <view class="error-tip" wx:if="{{errorMsg}}">
+      <text>{{errorMsg}}</text>
+    </view>
+
+    <button class="btn-login" bindtap="onLogin"
+            disabled="{{!phone || !password || isSubmitting}}"
+            loading="{{isSubmitting}}">登 录</button>
+
+    <view class="aux-links">
+      <text bindtap="onGoRegister">注册账号</text>
+      <text class="aux-divider">|</text>
+      <text bindtap="onGoReset">忘记密码</text>
+    </view>
+
+    <view class="divider-row">
+      <view class="divider-line"></view>
+      <text class="divider-text">其他登录方式</text>
+      <view class="divider-line"></view>
+    </view>
+
+    <button class="btn-wechat" bindtap="onWechatLogin"
+            loading="{{wechatLoading}}">
+      <text class="wechat-icon">💬</text>
+      <text>微信一键登录</text>
+    </button>
   </view>
 </view>

@@ -5,8 +5,17 @@ Component({
   },
   methods: {
     onBack() {
-      this.triggerEvent('back')
-      wx.navigateBack({ delta: 1 })
+      wx.navigateBack({
+        delta: 1,
+        fail: () => {
+          wx.switchTab({
+            url: '/pages/index/index',
+            fail: () => {
+              wx.redirectTo({ url: '/pages/index/index' })
+            },
+          })
+        },
+      })
     },
   },
 })
