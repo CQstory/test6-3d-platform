@@ -13,6 +13,18 @@
         <text class="info-label">格式</text>
         <text class="info-value">{{model.format}}</text>
       </view>
+      <view class="info-row" wx:if="{{model.price > 0}}">
+        <text class="info-label">价格</text>
+        <text class="info-value price">¥{{model.price}}</text>
+      </view>
+      <view class="info-row" wx:if="{{model.material}}">
+        <text class="info-label">材质</text>
+        <text class="info-value">{{model.material}}</text>
+      </view>
+      <view class="info-row" wx:if="{{model.dimensions}}">
+        <text class="info-label">规格</text>
+        <text class="info-value">{{model.dimensions}}</text>
+      </view>
       <view class="info-row">
         <text class="info-label">商家</text>
         <text class="info-value">{{model.merchantName}}</text>
@@ -24,6 +36,14 @@
     </view>
     <view class="action-bar">
       <button class="btn-3d" bindtap="onView3D">🔍 3D 查看</button>
+    </view>
+    <view class="shop-links" wx:if="{{model.shopLinks && model.shopLinks.length > 0}}">
+      <text class="links-title">购买渠道</text>
+      <view class="link-card" wx:for="{{model.shopLinks}}" wx:key="url" bindtap="onOpenLink" data-url="{{item.url}}">
+        <text class="link-platform">{{item.platform}}</text>
+        <text class="link-shop">{{item.shopName}}</text>
+        <text class="link-arrow">去购买 ›</text>
+      </view>
     </view>
     <view class="bottom-spacer"></view>
   </view>
