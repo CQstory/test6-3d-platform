@@ -1,11 +1,69 @@
 <view class="page">
-  <top-bar title="消息" />
+  <top-bar title="{{isMerchant ? '商家' : '消息'}}" />
   <view class="page-content">
-    <view class="placeholder">
+    <!-- 普通用户：通知占位 -->
+    <view class="placeholder" wx:if="{{!isMerchant}}">
       <text class="placeholder-icon">💬</text>
-      <text class="placeholder-text">消息中心建设中</text>
-      <text class="placeholder-sub">敬请期待</text>
+      <text class="placeholder-text">暂无新消息</text>
+      <text class="placeholder-sub">系统通知、物流信息等将显示在此处</text>
     </view>
+
+    <!-- 商家角色 -->
+    <block wx:if="{{isMerchant}}">
+      <!-- 内部 Tab -->
+      <view class="inner-tabs">
+        <view
+          class="inner-tab {{activeTab === 'models' ? 'active' : ''}}"
+          data-tab="models" bindtap="onTabTap"
+        >模型管理</view>
+        <view
+          class="inner-tab {{activeTab === 'stats' ? 'active' : ''}}"
+          data-tab="stats" bindtap="onTabTap"
+        >数据看板</view>
+      </view>
+
+      <!-- 模型管理 Tab -->
+      <view class="tab-content" wx:if="{{activeTab === 'models'}}">
+        <view wx:if="{{models.length === 0}}" class="empty-state">
+          <text class="empty-icon">📦</text>
+          <text class="empty-text">暂无模型</text>
+        </view>
+        <view wx:for="{{models}}" wx:key="id">
+          <model-item model="{{item}}" showStatus="{{true}}" showPrice="{{true}}" bind:tap="onModelTap" />
+        </view>
+      </view>
+
+      <!-- 数据看板 Tab -->
+      <view class="tab-content" wx:if="{{activeTab === 'stats'}}">
+        <view class="stats-cards">
+          <view class="stat-card">
+            <text class="stat-num">{{stats.total}}</text>
+            <text class="stat-label">模型总数</text>
+          </view>
+          <view class="stat-card">
+            <text class="stat-num">{{stats.views}}</text>
+            <text class="stat-label">总浏览量</text>
+          </view>
+          <view class="stat-card">
+            <text class="stat-num">{{stats.favorites}}</text>
+            <text class="stat-label">总收藏数</text>
+          </view>
+        </view>
+        <view class="rank-section">
+          <text class="rank-title">浏览排行</text>
+          <view wx:for="{{sortedModels}}" wx:key="id" wx:if="{{index < 10}}">
+            <model-item model="{{item}}" showStatus="{{false}}" showPrice="{{false}}" />
+          </view>
+        </view>
+      </view>
+
+      <!-- 浮动新增按钮 -->
+      <view class="fab" wx:if="{{activeTab === 'models'}}" bindtap="onAddModel">
+        <text class="fab-icon">+</text>
+      </view>
+    </block>
+
+    <view class="bottom-spacer"></view>
   </view>
   <tab-bar active="merchant" role="{{role}}" />
 </view>
