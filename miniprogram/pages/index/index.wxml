@@ -74,5 +74,5 @@
 
     <view class="bottom-spacer"></view>
   </view>
-  <tab-bar active="home" />
+  <tab-bar active="home" role="{{role}}" />
 </view>

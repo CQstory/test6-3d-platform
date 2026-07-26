@@ -40,4 +40,4 @@
     </view>
   </view>
 </view>
-<tab-bar active="profile" />
+<tab-bar active="profile" role="{{role}}" />

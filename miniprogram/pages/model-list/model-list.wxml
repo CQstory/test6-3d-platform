@@ -25,5 +25,5 @@
     </view>
     <view class="bottom-spacer"></view>
   </view>
-  <tab-bar active="browse" />
+  <tab-bar active="browse" role="{{role}}" />
 </view>

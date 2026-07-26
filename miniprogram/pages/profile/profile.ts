@@ -4,13 +4,14 @@ Page({
   data: {
     isLoggedIn: false,
     userInfo: null as UserInfo | null,
+    role: '',
   },
   onLoad() { this.refresh() },
   onShow() { this.refresh() },
   refresh() {
     const loggedIn = userService.isLoggedIn()
     const info = userService.getCurrentUser()
-    this.setData({ isLoggedIn: loggedIn, userInfo: info })
+    this.setData({ isLoggedIn: loggedIn, userInfo: info, role: info ? info.role : 'user' })
   },
 
   onGoLogin() { wx.navigateTo({ url: '/pages/login/login' }) },

@@ -7,5 +7,5 @@
       <text class="placeholder-sub">敬请期待</text>
     </view>
   </view>
-  <tab-bar active="merchant" />
+  <tab-bar active="merchant" role="{{role}}" />
 </view>
