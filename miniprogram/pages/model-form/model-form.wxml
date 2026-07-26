@@ -3,11 +3,11 @@
   <view class="page-content">
     <!-- 模型文件上传 -->
     <view class="form-section">
-      <text class="section-label" wx:if="{{!isEdit}}">模型文件（.zip，必填）</text>
-      <text class="section-label" wx:if="{{isEdit}}">模型文件（.zip）</text>
+      <text class="section-label" wx:if="{{!isEdit}}">模型文件 *</text>
+      <text class="section-label" wx:if="{{isEdit}}">模型文件</text>
       <view class="upload-btn" bindtap="onChooseModelFile">
-        <text wx:if="{{!modelFilePath && !modelUrl}}">📁 点击选择文件</text>
-        <text wx:else>📁 已选择文件</text>
+        <text wx:if="{{!modelFilePath && !modelUrl}}">📁 点击上传模型文件</text>
+        <text wx:else class="file-name">📁 {{modelFileName || '已选择文件'}}</text>
       </view>
     </view>
 

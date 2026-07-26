@@ -29,6 +29,7 @@ Page({
     modelUrl: '',
     thumbnailPath: '' as string,
     modelFilePath: '' as string,
+    modelFileName: '' as string,
     uploading: false,
   },
 
@@ -58,6 +59,7 @@ Page({
       shopLinks: (model.shopLinks || []).map((l, i) => ({ ...l, _key: 'link-' + i })),
       thumbnail: model.thumbnail || '',
       modelUrl: model.modelUrl || '',
+      modelFileName: model.modelUrl ? '已上传的模型文件' : '',
     })
   },
 
@@ -113,7 +115,11 @@ Page({
       count: 1,
       type: 'file',
       success: (res: any) => {
-        this.setData({ modelFilePath: res.tempFiles[0].path })
+        const file = res.tempFiles[0]
+        this.setData({
+          modelFilePath: file.path,
+          modelFileName: file.name || '已选择文件',
+        })
       },
     })
   },

@@ -26,6 +26,11 @@
   height: 200rpx;
   border-radius: 8rpx;
 }
+.file-name {
+  color: #333;
+  font-size: 26rpx;
+  word-break: break-all;
+}
 
 .form-group-title {
   font-size: 28rpx;
