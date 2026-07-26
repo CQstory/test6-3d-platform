@@ -1,0 +1,100 @@
+<view class="page">
+  <top-bar title="{{title}}" showBack="{{true}}" />
+  <view class="page-content">
+    <!-- 模型文件上传 -->
+    <view class="form-section">
+      <text class="section-label" wx:if="{{!isEdit}}">模型文件（.zip，必填）</text>
+      <text class="section-label" wx:if="{{isEdit}}">模型文件（.zip）</text>
+      <view class="upload-btn" bindtap="onChooseModelFile">
+        <text wx:if="{{!modelFilePath && !modelUrl}}">📁 点击选择文件</text>
+        <text wx:else>📁 已选择文件</text>
+      </view>
+    </view>
+
+    <!-- 缩略图 -->
+    <view class="form-section">
+      <text class="section-label">缩略图</text>
+      <view class="upload-btn" bindtap="onChooseThumbnail">
+        <text wx:if="{{!thumbnailPath && !thumbnail}}">🖼 点击上传</text>
+        <image wx:else class="preview-img" src="{{thumbnailPath || thumbnail}}" mode="aspectFill" />
+      </view>
+    </view>
+
+    <!-- 基础信息 -->
+    <view class="form-group">
+      <view class="form-item">
+        <text class="form-label">名称 *</text>
+        <input class="form-input" value="{{name}}" bindinput="onInput" data-field="name" placeholder="模型名称" />
+      </view>
+      <view class="form-item">
+        <text class="form-label">描述</text>
+        <textarea class="form-textarea" value="{{description}}" bindinput="onInput" data-field="description" placeholder="模型描述..." />
+      </view>
+      <view class="form-item">
+        <text class="form-label">分类 *</text>
+        <picker mode="selector" range="{{categoriesList}}" value="{{categoryIndex}}" bindchange="onCategoryChange">
+          <view class="form-picker">{{categoriesList[categoryIndex]}}</view>
+        </picker>
+      </view>
+      <view class="form-item">
+        <text class="form-label">标签</text>
+        <input class="form-input" value="{{tagInput}}" bindinput="onInput" data-field="tagInput" placeholder="标签，多个用逗号分隔" />
+      </view>
+      <view class="form-item">
+        <text class="form-label">面数</text>
+        <input class="form-input" type="number" value="{{faces}}" bindinput="onInput" data-field="faces" placeholder="面数" />
+      </view>
+      <view class="form-item">
+        <text class="form-label">格式 *</text>
+        <view class="format-row">
+          <view class="format-opt {{format === 'glb' ? 'active' : ''}}" data-format="glb" bindtap="onFormatChange">GLB</view>
+          <view class="format-opt {{format === 'obj' ? 'active' : ''}}" data-format="obj" bindtap="onFormatChange">OBJ</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 价格与规格 -->
+    <view class="form-group-title">价格与规格</view>
+    <view class="form-group">
+      <view class="form-item">
+        <text class="form-label">价格（元）</text>
+        <input class="form-input" type="digit" value="{{price}}" bindinput="onInput" data-field="price" placeholder="0 表示免费" />
+      </view>
+      <view class="form-item">
+        <text class="form-label">材质</text>
+        <input class="form-input" value="{{material}}" bindinput="onInput" data-field="material" placeholder="如：PBR金属、树脂" />
+      </view>
+      <view class="form-item">
+        <text class="form-label">规格/尺寸</text>
+        <input class="form-input" value="{{dimensions}}" bindinput="onInput" data-field="dimensions" placeholder="如：15×10×8cm" />
+      </view>
+    </view>
+
+    <!-- 电商链接 -->
+    <view class="form-group-title">电商链接</view>
+    <view class="form-group">
+      <view class="link-item" wx:for="{{shopLinks}}" wx:key="_key">
+        <view class="link-row">
+          <input class="link-input" value="{{item.platform}}" data-key="{{item._key}}" data-field="platform" bindinput="onLinkInput" placeholder="平台（淘宝/京东...）" />
+          <input class="link-input" value="{{item.shopName}}" data-key="{{item._key}}" data-field="shopName" bindinput="onLinkInput" placeholder="店铺名" />
+        </view>
+        <view class="link-row">
+          <input class="link-input full" value="{{item.url}}" data-key="{{item._key}}" data-field="url" bindinput="onLinkInput" placeholder="链接地址" />
+          <text class="link-remove" data-key="{{item._key}}" bindtap="onRemoveLink">✕</text>
+        </view>
+      </view>
+      <view class="add-link" bindtap="onAddLink" wx:if="{{shopLinks.length < 5}}">
+        <text>+ 添加电商链接</text>
+      </view>
+    </view>
+
+    <!-- 保存按钮 -->
+    <view class="save-area">
+      <button class="btn-save" bindtap="onSave" loading="{{uploading}}" disabled="{{uploading}}">
+        {{isEdit ? '保存修改' : '上传并发布'}}
+      </button>
+    </view>
+
+    <view class="bottom-spacer"></view>
+  </view>
+</view>

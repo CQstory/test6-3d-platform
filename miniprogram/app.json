@@ -1,5 +1,6 @@
 {
   "pages": [
+    "pages/model-form/model-form",
     "pages/index/index",
     "pages/model-list/model-list",
     "pages/merchant-center/merchant-center",
