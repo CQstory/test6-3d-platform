@@ -1,7 +1,9 @@
 import { Model, CATEGORY_MAP, CategoryType } from '../types/model'
-import { api } from './api'
+import { ShopLink } from '../types/model'
+import { api, uploadFile } from './api'
 import { USE_MOCK } from './config'
 import { modelsData } from '../data/models'
+import { userService } from './user-service'
 
 /* ========== API 响应类型 ========== */
 
@@ -35,6 +37,15 @@ function mapModel(item: ModelItem): Model {
   }
 }
 
+/* ========== 创建/更新模型参数 ========== */
+
+interface CreateModelData {
+  name: string; description: string; category: CategoryType
+  tags: string[]; faces: number; format: string
+  price: number; material: string; dimensions: string
+  shopLinks: ShopLink[]; thumbnail: string; modelUrl: string
+}
+
 /* ========== Service 接口 ========== */
 
 export interface IModelService {
@@ -48,6 +59,11 @@ export interface IModelService {
   recordView(modelId: string): Promise<number>
   toggleFavorite(modelId: string): Promise<{ favorited: boolean; favorite_count: number }>
   getMyFavorites(): Promise<Model[]>
+  getMyModels(): Promise<Model[]>
+  createModel(data: CreateModelData): Promise<Model>
+  updateModel(id: string, data: Partial<CreateModelData>): Promise<Model>
+  uploadModelFile(filePath: string): Promise<string>
+  uploadThumbnail(filePath: string): Promise<string>
 }
 
 /* ========== Real API ========== */
@@ -90,6 +106,26 @@ const realApi: IModelService = {
   async getMyFavorites() {
     const res = await api.get<ModelListResponse>('/users/me/favorites')
     return res.items.map(mapModel)
+  },
+  async getMyModels() {
+    const res = await api.get<ModelListResponse>('/merchant/models')
+    return res.items.map(mapModel)
+  },
+  async createModel(data: CreateModelData) {
+    const res = await api.post<ModelItem>('/models', data)
+    return mapModel(res)
+  },
+  async updateModel(id: string, data: Partial<CreateModelData>) {
+    const res = await api.put<ModelItem>('/models/' + id, data)
+    return mapModel(res)
+  },
+  async uploadModelFile(filePath: string) {
+    const res = await uploadFile(filePath, '/upload/model')
+    return res.url
+  },
+  async uploadThumbnail(filePath: string) {
+    const res = await uploadFile(filePath, '/upload/thumbnail')
+    return res.url
   },
 }
 
@@ -135,6 +171,68 @@ const mockApi: IModelService = {
   async getMyFavorites() {
     let favIds: string[] = []; try { favIds = wx.getStorageSync('favorites') || [] } catch (_) {}
     return modelsData.filter(m => favIds.includes(m.id))
+  },
+  async getMyModels() {
+    const user = userService.getCurrentUser()
+    const merchantId = 'merchant-1'
+    const name = user ? user.nickname : '星河模型工坊'
+    return modelsData
+      .filter(m => m.merchantId === merchantId)
+      .map(m => ({ ...m, merchantName: name }))
+  },
+  async createModel(data: CreateModelData) {
+    const user = userService.getCurrentUser()
+    const newModel: Model = {
+      id: 'model-' + Date.now(),
+      name: data.name,
+      description: data.description || '',
+      thumbnail: data.thumbnail || 'https://picsum.photos/400/400?random=' + Date.now(),
+      modelUrl: data.modelUrl || '',
+      category: data.category,
+      tags: data.tags || [],
+      faces: data.faces || 0,
+      format: data.format || 'glb',
+      merchantId: 'merchant-1',
+      merchantName: user ? user.nickname : '星河模型工坊',
+      merchantAvatar: user ? user.avatar : 'https://api.dicebear.com/8.x/shapes/svg?seed=galaxy',
+      views: 0,
+      favorites: 0,
+      price: data.price || 0,
+      material: data.material || '',
+      dimensions: data.dimensions || '',
+      status: 'published',
+      shopLinks: data.shopLinks || [],
+    }
+    modelsData.unshift(newModel)
+    return newModel
+  },
+  async updateModel(id: string, data: Partial<CreateModelData>) {
+    const idx = modelsData.findIndex(m => m.id === id)
+    if (idx === -1) throw new Error('模型未找到')
+    const existing = modelsData[idx]
+    const updated: Model = {
+      ...existing,
+      ...(data.name !== undefined && { name: data.name }),
+      ...(data.description !== undefined && { description: data.description }),
+      ...(data.category !== undefined && { category: data.category }),
+      ...(data.tags !== undefined && { tags: data.tags }),
+      ...(data.faces !== undefined && { faces: data.faces }),
+      ...(data.format !== undefined && { format: data.format }),
+      ...(data.price !== undefined && { price: data.price }),
+      ...(data.material !== undefined && { material: data.material }),
+      ...(data.dimensions !== undefined && { dimensions: data.dimensions }),
+      ...(data.shopLinks !== undefined && { shopLinks: data.shopLinks }),
+      ...(data.thumbnail !== undefined && { thumbnail: data.thumbnail }),
+      ...(data.modelUrl !== undefined && { modelUrl: data.modelUrl }),
+    }
+    modelsData[idx] = updated
+    return updated
+  },
+  async uploadModelFile(_filePath: string) {
+    return 'https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/DamagedHelmet/glTF-Binary/DamagedHelmet.glb'
+  },
+  async uploadThumbnail(_filePath: string) {
+    return 'https://picsum.photos/400/400?random=' + Date.now()
   },
 }
 
