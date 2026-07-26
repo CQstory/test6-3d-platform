@@ -1,0 +1,73 @@
+.model-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  margin-bottom: 16rpx;
+}
+.item-thumb {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 12rpx;
+  flex-shrink: 0;
+  background: #f0f0f0;
+}
+.item-info {
+  flex: 1;
+  margin-left: 20rpx;
+  overflow: hidden;
+}
+.item-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1a1a2e;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.item-meta {
+  margin-top: 8rpx;
+  display: flex;
+  align-items: center;
+}
+.item-price {
+  font-size: 28rpx;
+  color: #e74c3c;
+  font-weight: 500;
+}
+.item-price.free {
+  color: #4ecdc4;
+}
+.item-category {
+  font-size: 24rpx;
+  color: #999;
+}
+.item-footer {
+  margin-top: 8rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.item-views {
+  font-size: 24rpx;
+  color: #999;
+}
+.item-status {
+  font-size: 22rpx;
+  padding: 4rpx 16rpx;
+  border-radius: 8rpx;
+}
+.status-published {
+  background: #e8f8f5;
+  color: #4ecdc4;
+}
+.status-flagged {
+  background: #fef5e7;
+  color: #f0ad4e;
+}
+.status-removed {
+  background: #f2f2f2;
+  color: #999;
+}

@@ -1,0 +1,15 @@
+<view class="model-item" bindtap="onTap">
+  <image class="item-thumb" src="{{model.thumbnail}}" mode="aspectFill" />
+  <view class="item-info">
+    <text class="item-name">{{model.name}}</text>
+    <view class="item-meta">
+      <text class="item-price" wx:if="{{showPrice && model.price > 0}}">¥{{model.price}}</text>
+      <text class="item-price free" wx:if="{{showPrice && model.price === 0}}">免费</text>
+      <text class="item-category" wx:if="{{categoryText}}"> · {{categoryText}}</text>
+    </view>
+    <view class="item-footer">
+      <text class="item-views">👁️ {{model.views}}</text>
+      <text class="item-status {{statusClass}}" wx:if="{{showStatus}}">{{statusText}}</text>
+    </view>
+  </view>
+</view>
