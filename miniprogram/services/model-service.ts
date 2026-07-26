@@ -27,6 +27,11 @@ function mapModel(item: ModelItem): Model {
     merchantName: (item.shop && item.shop.name) || '',
     merchantAvatar: (item.shop && item.shop.avatar) || '',
     views: item.view_count || 0, favorites: item.favorite_count || 0,
+    price: 0,
+    material: '',
+    dimensions: '',
+    status: 'published',
+    shopLinks: [],
   }
 }
 

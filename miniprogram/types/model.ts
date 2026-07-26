@@ -17,6 +17,11 @@ export interface Model {
   merchantAvatar: string
   views: number
   favorites: number
+  price: number
+  material: string
+  dimensions: string
+  status: ModelStatus
+  shopLinks: ShopLink[]
 }
 
 /** Banner 轮播图 */
@@ -57,6 +62,16 @@ export interface Plan {
   features: string[]
   highlight: boolean
 }
+
+/** 电商链接 */
+export interface ShopLink {
+  platform: string
+  shopName: string
+  url: string
+}
+
+/** 模型发布状态 */
+export type ModelStatus = 'published' | 'flagged' | 'removed'
 
 /** 分类标签映射 */
 export const CATEGORY_MAP: Record<CategoryType, string> = {
