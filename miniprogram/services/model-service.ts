@@ -27,6 +27,8 @@ interface ModelItem {
   model_url?: string; category: CategoryType; tags: string[]
   faces: number; format: string
   view_count: number; favorite_count: number; is_favorited?: boolean
+  click_count?: number
+  favorite_added?: number
   status?: string; review_comment?: string
   price_matrix?: PriceMatrix | null
   shop?: { id: string; name: string; avatar: string }
@@ -45,6 +47,8 @@ function mapModel(item: ModelItem): Model {
     merchantName: (item.shop && item.shop.name) || '',
     merchantAvatar: (item.shop && item.shop.avatar) || '',
     views: item.view_count || 0, favorites: item.favorite_count || 0,
+    clicks: item.click_count || 0,
+    favoriteAdded: item.favorite_added || 0,
     price: 0,
     material: '',
     dimensions: '',
@@ -78,7 +82,11 @@ export interface IModelService {
   searchModels(keyword: string): Promise<Model[]>
   getAllCategories(): { key: CategoryType; label: string }[]
   recordView(modelId: string): Promise<number>
-  toggleFavorite(modelId: string): Promise<{ favorited: boolean; favorite_count: number }>
+  /** 记录电商链接点击：每次点击 +1，不去重（浏览量可能小于点击量） */
+  recordClick(modelId: string, data?: { link_url?: string; platform?: string }): Promise<number>
+  /** 浏览/点击趋势（近 N 天，后端聚合；接口未就绪时前端降级） */
+  getStatsTrend(days?: number): Promise<{ dates: string[]; views: number[]; clicks: number[]; favorites: number[] }>
+  toggleFavorite(modelId: string): Promise<{ favorited: boolean; favorite_count: number; favorite_added: number }>
   getMyFavorites(): Promise<Model[]>
   getMyModels(): Promise<Model[]>
   createModel(data: CreateModelData): Promise<Model>
@@ -130,8 +138,18 @@ const realApi: IModelService = {
     const res = await api.post<{ view_count: number }>(`/models/${modelId}/view`)
     return res.view_count
   },
+  async recordClick(modelId: string, data?: { link_url?: string; platform?: string }) {
+    const res = await api.post<{ click_count: number }>(`/models/${modelId}/click`, data || {})
+    return res.click_count
+  },
+  async getStatsTrend(days = 7) {
+    const res = await api.get<{ dates: string[]; views: number[]; clicks: number[]; favorites: number[] }>(
+      `/merchant/stats/trend?days=${days}`
+    )
+    return res
+  },
   async toggleFavorite(modelId: string) {
-    return api.post<{ favorited: boolean; favorite_count: number }>(`/models/${modelId}/favorite/toggle`)
+    return api.post<{ favorited: boolean; favorite_count: number; favorite_added: number }>(`/models/${modelId}/favorite/toggle`)
   },
   async getMyFavorites() {
     const res = await api.get<ModelListResponse>('/users/me/favorites')
@@ -179,8 +197,9 @@ const realApi: IModelService = {
 
 const mockApi: IModelService = {
   async getHotModels(limit?: number) {
+    // 新热度公式：特殊浏览量 = views + 5×favoriteAdded + 3×clicks（收藏含取消加权，体现强意向）
     const sorted = [...modelsData]
-      .map(m => ({ ...m, hotScore: m.views * 0.4 + m.favorites * 0.6 * 10 }))
+      .map(m => ({ ...m, hotScore: m.views + m.favoriteAdded * 5 + m.clicks * 3 }))
       .sort((a, b) => b.hotScore - a.hotScore)
     return sorted.slice(0, limit != null ? limit : sorted.length)
   },
@@ -206,13 +225,40 @@ const mockApi: IModelService = {
     return Object.entries(CATEGORY_MAP).map(([key, label]) => ({ key: key as CategoryType, label }))
   },
   async recordView() { return 0 },
+  async recordClick(modelId: string, _data?: { link_url?: string; platform?: string }) {
+    // 本地累加点击次数（每次 +1，不去重）
+    const key = 'mock_clicks_' + modelId
+    const n = (Number(wx.getStorageSync(key)) || 0) + 1
+    try { wx.setStorageSync(key, n) } catch (_) {}
+    return n
+  },
+  async getStatsTrend(days = 7) {
+    // 模拟近 N 天三序列（常态：浏览 ≥ 收藏 ≥ 点击）
+    const dates: string[] = []; const views: number[] = []; const clicks: number[] = []; const favorites: number[] = []
+    const now = Date.now()
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date(now - i * 86400000)
+      dates.push(`${d.getMonth() + 1}/${d.getDate()}`)
+      const v = 40 + Math.round(Math.random() * 60)
+      views.push(v)
+      favorites.push(Math.round(v * 0.6))
+      clicks.push(Math.round(v * 0.3))
+    }
+    return { dates, views, clicks, favorites }
+  },
   async toggleFavorite(modelId: string) {
     let favs: string[] = []; try { favs = wx.getStorageSync('favorites') || [] } catch (_) {}
     let favorited: boolean
+    let added = Number(wx.getStorageSync('mock_fav_added_' + modelId)) || 0
     if (favs.includes(modelId)) { favs = favs.filter(id => id !== modelId); favorited = false }
-    else { favs = [...favs, modelId]; favorited = true }
+    else {
+      favs = [...favs, modelId]; favorited = true
+      // 累计收藏 +1（取消不回退，模拟后端 favorite_added 口径）
+      added += 1
+      try { wx.setStorageSync('mock_fav_added_' + modelId, added) } catch (_) {}
+    }
     try { wx.setStorageSync('favorites', favs) } catch (_) {}
-    return { favorited, favorite_count: favs.length }
+    return { favorited, favorite_count: favs.length, favorite_added: added }
   },
   async getMyFavorites() {
     let favIds: string[] = []; try { favIds = wx.getStorageSync('favorites') || [] } catch (_) {}
@@ -224,7 +270,12 @@ const mockApi: IModelService = {
     const name = user ? user.nickname : '星河模型工坊'
     return modelsData
       .filter(m => m.merchantId === merchantId)
-      .map(m => ({ ...m, merchantName: name }))
+      .map(m => ({
+        ...m,
+        merchantName: name,
+        clicks: m.clicks + (Number(wx.getStorageSync('mock_clicks_' + m.id)) || 0),
+        favoriteAdded: m.favoriteAdded + (Number(wx.getStorageSync('mock_fav_added_' + m.id)) || 0),
+      }))
   },
   async createModel(data: CreateModelData) {
     const user = userService.getCurrentUser()
@@ -243,6 +294,8 @@ const mockApi: IModelService = {
       merchantAvatar: user ? user.avatar : 'https://api.dicebear.com/8.x/shapes/svg?seed=galaxy',
       views: 0,
       favorites: 0,
+      clicks: 0,
+      favoriteAdded: 0,
       price: data.price || 0,
       material: data.material || '',
       dimensions: data.dimensions || '',

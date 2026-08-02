@@ -17,6 +17,9 @@ export interface Model {
   merchantAvatar: string
   views: number
   favorites: number
+  clicks: number
+  /** 累计收藏次数（含收藏后取消，不随取消回退） */
+  favoriteAdded: number
   price: number
   material: string
   dimensions: string

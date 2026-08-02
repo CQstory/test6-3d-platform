@@ -113,6 +113,11 @@ Page({
   onOpenLink(e: any) {
     const url = e.currentTarget.dataset.url
     if (url) {
+      // 点击跳转埋点：每次点击 +1，不去重（浏览量可能小于点击量）
+      modelService.recordClick(this._modelId, {
+        link_url: url,
+        platform: e.currentTarget.dataset.platform || '',
+      }).catch(() => {})
       wx.setClipboardData({
         data: url,
         success: () => wx.showToast({ title: '链接已复制，请在浏览器中打开', icon: 'none' }),

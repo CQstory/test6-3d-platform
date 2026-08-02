@@ -47,12 +47,82 @@
         </view>
       </view>
 
-      <!-- 数据看板 Tab（统计业务后期开发，先占位） -->
+      <!-- 数据看板 Tab：浏览/收藏/点击 三指标（不做成交） -->
       <view class="tab-content" wx:if="{{activeTab === 'stats'}}">
-        <view class="placeholder">
-          <text class="placeholder-icon">📊</text>
-          <text class="placeholder-text">数据统计建设中</text>
-          <text class="placeholder-sub">浏览量、收藏、成交等数据看板即将上线</text>
+        <!-- 概览卡片：收藏卡双值（当前·累计，累计含收藏后取消） -->
+        <view class="stats-cards">
+          <view class="stat-card"><text class="stat-num">{{stats.total}}</text><text class="stat-label">模型总数</text></view>
+          <view class="stat-card"><text class="stat-num">{{stats.views}}</text><text class="stat-label">总浏览量</text></view>
+          <view class="stat-card"><text class="stat-num">{{stats.clicks}}</text><text class="stat-label">总点击量</text></view>
+          <view class="stat-card">
+            <text class="stat-num">{{stats.favorites}}</text>
+            <text class="stat-label">当前收藏 · 累计 {{stats.favoriteAdded}}</text>
+          </view>
+        </view>
+
+        <!-- 深度意向：曾收藏又取消（强于普通浏览，未转化为当前收藏） -->
+        <view class="intent-bar" wx:if="{{favoriteDiff > 0}}">
+          <text>深度意向：{{favoriteDiff}} 人次曾收藏后取消，未计入当前收藏但强于普通浏览</text>
+        </view>
+
+        <!-- 浏览 → 点击转化率 -->
+        <view class="conv-bar">
+          <view class="conv-head">
+            <text class="conv-label">浏览 → 点击转化率</text>
+            <text class="conv-value">{{stats.conversion}}%</text>
+          </view>
+          <view class="conv-track">
+            <view class="conv-fill" style="width: {{stats.conversion}}%"></view>
+          </view>
+        </view>
+
+        <!-- 排行：点击/浏览/收藏 三 Tab（收藏按累计 favoriteAdded 排序） -->
+        <view class="rank-section">
+          <view class="rank-tabs">
+            <text class="rank-tab {{rankTab === 'clicks' ? 'active' : ''}}" data-tab="clicks" bindtap="onRankTabTap">点击</text>
+            <text class="rank-tab {{rankTab === 'views' ? 'active' : ''}}" data-tab="views" bindtap="onRankTabTap">浏览</text>
+            <text class="rank-tab {{rankTab === 'favorites' ? 'active' : ''}}" data-tab="favorites" bindtap="onRankTabTap">收藏</text>
+          </view>
+          <view class="rank-row" wx:for="{{rankList}}" wx:key="id">
+            <text class="rank-idx {{index < 3 ? 'top' : ''}}">{{index + 1}}</text>
+            <text class="rank-name">{{item.name}}</text>
+            <text class="rank-num">👁️ {{item.views}}</text>
+            <text class="rank-num fav">❤️ {{item.favoriteAdded}}</text>
+            <text class="rank-num click">🖱️ {{item.clicks}}</text>
+          </view>
+          <view wx:if="{{rankList.length === 0}}" class="rank-empty">暂无数据</view>
+        </view>
+
+        <!-- 状态分布 -->
+        <view class="status-dist">
+          <text class="dist-chip">已发布 {{statusDist.published}}</text>
+          <text class="dist-chip warn">违规 {{statusDist.flagged}}</text>
+          <text class="dist-chip gray">已撤回 {{statusDist.removed}}</text>
+        </view>
+
+        <!-- 趋势（后端 /merchant/stats/trend 就绪后显示，三指标） -->
+        <view class="trend-section" wx:if="{{trendReady}}">
+          <text class="trend-title">近 7 天浏览 / 收藏 / 点击</text>
+          <view class="trend-chart">
+            <view class="trend-bars">
+              <view class="bar-group" wx:for="{{trend.dates}}" wx:key="*this">
+                <view class="bar-stack">
+                  <view class="bar bar-view" style="height: {{trend.views[index]}}%"></view>
+                  <view class="bar bar-fav" style="height: {{trend.favorites[index]}}%"></view>
+                  <view class="bar bar-click" style="height: {{trend.clicks[index]}}%"></view>
+                </view>
+                <text class="bar-date">{{item}}</text>
+              </view>
+            </view>
+            <view class="trend-legend">
+              <text class="legend-item view">■ 浏览</text>
+              <text class="legend-item fav">■ 收藏</text>
+              <text class="legend-item click">■ 点击</text>
+            </view>
+          </view>
+        </view>
+        <view class="trend-placeholder" wx:else>
+          <text>趋势数据即将上线（需后端 /merchant/stats/trend）</text>
         </view>
       </view>
 

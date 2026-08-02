@@ -39,7 +39,7 @@
     </view>
     <view class="shop-links" wx:if="{{model.shopLinks && model.shopLinks.length > 0}}">
       <text class="links-title">购买渠道</text>
-      <view class="link-card" wx:for="{{model.shopLinks}}" wx:key="url" bindtap="onOpenLink" data-url="{{item.url}}">
+      <view class="link-card" wx:for="{{model.shopLinks}}" wx:key="url" bindtap="onOpenLink" data-url="{{item.url}}" data-platform="{{item.platform}}">
         <text class="link-platform">{{item.platform}}</text>
         <text class="link-shop">{{item.shopName}}</text>
         <text class="link-arrow">去购买 ›</text>

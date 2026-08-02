@@ -143,3 +143,232 @@
 }
 
 .bottom-spacer { height: 40rpx; }
+
+/* ===== 数据看板 ===== */
+.stats-cards {
+  display: flex;
+  gap: 16rpx;
+  margin-bottom: 20rpx;
+}
+.stat-card {
+  flex: 1;
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 28rpx 0;
+  text-align: center;
+}
+.stat-num {
+  display: block;
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+.stat-label {
+  display: block;
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 8rpx;
+}
+
+/* 深度意向：曾收藏又取消 */
+.intent-bar {
+  background: #fdf2f2;
+  border: 2rpx solid #f8d7da;
+  border-radius: 12rpx;
+  padding: 16rpx 20rpx;
+  font-size: 24rpx;
+  color: #c0392b;
+  margin-bottom: 20rpx;
+}
+
+/* 浏览 → 点击转化率 */
+.conv-bar {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+}
+.conv-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+.conv-label {
+  font-size: 26rpx;
+  color: #666;
+}
+.conv-value {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #4ecdc4;
+}
+.conv-track {
+  height: 16rpx;
+  background: #f0f0f0;
+  border-radius: 8rpx;
+  overflow: hidden;
+}
+.conv-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4ecdc4, #44a08d);
+  border-radius: 8rpx;
+}
+
+/* 排行：点击/浏览双 Tab */
+.rank-section {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+}
+.rank-tabs {
+  display: flex;
+  gap: 32rpx;
+  padding-bottom: 16rpx;
+  border-bottom: 2rpx solid #f0f0f0;
+  margin-bottom: 8rpx;
+}
+.rank-tab {
+  font-size: 28rpx;
+  color: #999;
+  padding-bottom: 8rpx;
+  border-bottom: 4rpx solid transparent;
+}
+.rank-tab.active {
+  color: #1a1a2e;
+  font-weight: 600;
+  border-bottom-color: #4ecdc4;
+}
+.rank-row {
+  display: flex;
+  align-items: center;
+  padding: 18rpx 0;
+  border-bottom: 1rpx solid #f7f7f7;
+}
+.rank-row:last-child { border-bottom: none; }
+.rank-idx {
+  width: 44rpx;
+  height: 44rpx;
+  line-height: 44rpx;
+  text-align: center;
+  border-radius: 50%;
+  background: #f0f0f0;
+  color: #999;
+  font-size: 24rpx;
+  font-weight: 600;
+  flex-shrink: 0;
+  margin-right: 16rpx;
+}
+.rank-idx.top {
+  background: linear-gradient(135deg, #4ecdc4, #44a08d);
+  color: #fff;
+}
+.rank-name {
+  flex: 1;
+  font-size: 26rpx;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: 16rpx;
+}
+.rank-num {
+  font-size: 24rpx;
+  color: #999;
+  margin-left: 20rpx;
+  flex-shrink: 0;
+}
+.rank-num.click { color: #f0ad4e; }
+.rank-num.fav { color: #e74c3c; }
+.rank-empty {
+  text-align: center;
+  color: #999;
+  font-size: 24rpx;
+  padding: 40rpx 0;
+}
+
+/* 状态分布 */
+.status-dist {
+  display: flex;
+  gap: 16rpx;
+  margin-bottom: 20rpx;
+}
+.dist-chip {
+  flex: 1;
+  text-align: center;
+  background: #e8f8f5;
+  color: #4ecdc4;
+  font-size: 24rpx;
+  padding: 16rpx 0;
+  border-radius: 12rpx;
+}
+.dist-chip.warn { background: #fdf6e8; color: #f0ad4e; }
+.dist-chip.gray { background: #f2f2f2; color: #999; }
+
+/* 趋势：近 7 天浏览 vs 点击柱状图 */
+.trend-section {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+}
+.trend-title {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin-bottom: 24rpx;
+}
+.trend-chart { width: 100%; }
+.trend-bars {
+  display: flex;
+  align-items: flex-end;
+  height: 220rpx;
+  gap: 8rpx;
+}
+.bar-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+.bar-stack {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 4rpx;
+}
+.bar {
+  width: 14rpx;
+  border-radius: 4rpx 4rpx 0 0;
+  min-height: 2rpx;
+}
+.bar-view { background: #4ecdc4; }
+.bar-fav { background: #e74c3c; }
+.bar-click { background: #f0ad4e; }
+.bar-date {
+  font-size: 20rpx;
+  color: #999;
+  margin-top: 8rpx;
+}
+.trend-legend {
+  display: flex;
+  justify-content: center;
+  gap: 40rpx;
+  margin-top: 16rpx;
+}
+.legend-item { font-size: 22rpx; color: #999; }
+.legend-item.view { color: #4ecdc4; }
+.legend-item.fav { color: #e74c3c; }
+.legend-item.click { color: #f0ad4e; }
+.trend-placeholder {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 60rpx 24rpx;
+  text-align: center;
+  font-size: 24rpx;
+  color: #999;
+}
