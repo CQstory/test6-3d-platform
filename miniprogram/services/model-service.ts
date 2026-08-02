@@ -1,9 +1,24 @@
 import { Model, CATEGORY_MAP, CategoryType } from '../types/model'
-import { ShopLink } from '../types/model'
+import { ShopLink, PriceMatrix, PriceOption, PriceDimension, PriceFactors } from '../types/model'
 import { api, uploadFile } from './api'
 import { USE_MOCK } from './config'
 import { modelsData } from '../data/models'
 import { userService } from './user-service'
+
+/* ========== 预置价格选项（G3 接口就绪前编辑页回退使用） ========== */
+
+export const PRESET_PRICE_OPTIONS: PriceOption[] = [
+  { id: 'preset-pla', dimension: 'material', label: 'PLA', is_preset: true, is_active: true },
+  { id: 'preset-resin', dimension: 'material', label: '树脂', is_preset: true, is_active: true },
+  { id: 'preset-nylon', dimension: 'material', label: '尼龙', is_preset: true, is_active: true },
+  { id: 'preset-s', dimension: 'size', label: 'S', is_preset: true, is_active: true },
+  { id: 'preset-m', dimension: 'size', label: 'M', is_preset: true, is_active: true },
+  { id: 'preset-l', dimension: 'size', label: 'L', is_preset: true, is_active: true },
+  { id: 'preset-xl', dimension: 'size', label: 'XL', is_preset: true, is_active: true },
+  { id: 'preset-easy', dimension: 'complexity', label: '简单', is_preset: true, is_active: true },
+  { id: 'preset-medium', dimension: 'complexity', label: '中等', is_preset: true, is_active: true },
+  { id: 'preset-hard', dimension: 'complexity', label: '复杂', is_preset: true, is_active: true },
+]
 
 /* ========== API 响应类型 ========== */
 
@@ -13,6 +28,7 @@ interface ModelItem {
   faces: number; format: string
   view_count: number; favorite_count: number; is_favorited?: boolean
   status?: string; review_comment?: string
+  price_matrix?: PriceMatrix | null
   shop?: { id: string; name: string; avatar: string }
 }
 interface ModelListResponse { total: number; items: ModelItem[] }
@@ -34,6 +50,7 @@ function mapModel(item: ModelItem): Model {
     dimensions: '',
     status: 'published',
     shopLinks: [],
+    priceMatrix: item.price_matrix || null,
   }
 }
 
@@ -44,6 +61,10 @@ interface CreateModelData {
   tags: string[]; faces: number; format: string
   price: number; material: string; dimensions: string
   shopLinks: ShopLink[]; thumbnail: string; modelUrl: string
+  /** 多维定价（均可选；都不传 = 单一定价，兼容旧行为） */
+  base_price?: number
+  factors?: PriceFactors
+  price_matrix?: PriceMatrix
 }
 
 /* ========== Service 接口 ========== */
@@ -64,6 +85,15 @@ export interface IModelService {
   updateModel(id: string, data: Partial<CreateModelData>): Promise<Model>
   uploadModelFile(filePath: string): Promise<string>
   uploadThumbnail(filePath: string): Promise<string>
+  getPriceOptions(dimension: PriceDimension): Promise<PriceOption[]>
+  createPriceOption(data: { dimension: PriceDimension; label: string; description?: string }): Promise<PriceOption>
+  previewPriceMatrix(params: {
+    base_price: number
+    factors: PriceFactors
+    materials: { id: string; label: string }[]
+    sizes: { id: string; label: string }[]
+    complexities: { id: string; label: string }[]
+  }): Promise<PriceMatrix>
 }
 
 /* ========== Real API ========== */
@@ -126,6 +156,22 @@ const realApi: IModelService = {
   async uploadThumbnail(filePath: string) {
     const res = await uploadFile(filePath, '/upload/thumbnail')
     return res.url
+  },
+  async getPriceOptions(dimension: PriceDimension) {
+    const res = await api.get<{ items: PriceOption[] }>(`/price-options?dimension=${dimension}`)
+    return res.items || []
+  },
+  async createPriceOption(data: { dimension: PriceDimension; label: string; description?: string }) {
+    return api.post<PriceOption>('/price-options', data)
+  },
+  async previewPriceMatrix(params: {
+    base_price: number
+    factors: PriceFactors
+    materials: { id: string; label: string }[]
+    sizes: { id: string; label: string }[]
+    complexities: { id: string; label: string }[]
+  }) {
+    return api.post<PriceMatrix>('/models/price-matrix/preview', params)
   },
 }
 
@@ -202,6 +248,7 @@ const mockApi: IModelService = {
       dimensions: data.dimensions || '',
       status: 'published',
       shopLinks: data.shopLinks || [],
+      priceMatrix: data.price_matrix || null,
     }
     modelsData.unshift(newModel)
     return newModel
@@ -224,9 +271,55 @@ const mockApi: IModelService = {
       ...(data.shopLinks !== undefined && { shopLinks: data.shopLinks }),
       ...(data.thumbnail !== undefined && { thumbnail: data.thumbnail }),
       ...(data.modelUrl !== undefined && { modelUrl: data.modelUrl }),
+      ...(data.price_matrix !== undefined && { priceMatrix: data.price_matrix }),
     }
     modelsData[idx] = updated
     return updated
+  },
+  async getPriceOptions(dimension: PriceDimension) {
+    return PRESET_PRICE_OPTIONS.filter(o => o.dimension === dimension)
+  },
+  async createPriceOption(data: { dimension: PriceDimension; label: string; description?: string }) {
+    if (PRESET_PRICE_OPTIONS.some(o => o.dimension === data.dimension && o.label === data.label)) {
+      throw new Error('该选项已存在')
+    }
+    const option: PriceOption = {
+      id: 'custom-' + Date.now(),
+      dimension: data.dimension,
+      label: data.label,
+      description: data.description || '',
+      is_preset: false,
+      is_active: true,
+    }
+    PRESET_PRICE_OPTIONS.push(option)
+    return option
+  },
+  async previewPriceMatrix(params: {
+    base_price: number
+    factors: PriceFactors
+    materials: { id: string; label: string }[]
+    sizes: { id: string; label: string }[]
+    complexities: { id: string; label: string }[]
+  }) {
+    const { base_price, factors, materials, sizes, complexities } = params
+    if (materials.length === 0 || sizes.length === 0 || complexities.length === 0) {
+      throw new Error('每个维度至少选择一个选项')
+    }
+    const factorOf = (dim: PriceDimension, id: string) => {
+      const m = factors[dim]
+      return m && m[id] != null ? m[id] : 1.0
+    }
+    const prices: Record<string, number> = {}
+    materials.forEach(m => {
+      sizes.forEach(s => {
+        complexities.forEach(c => {
+          const key = `${m.id}:${s.id}:${c.id}`
+          const p = base_price * factorOf('material', m.id) * factorOf('size', s.id) * factorOf('complexity', c.id)
+          prices[key] = Math.round(p * 100) / 100
+        })
+      })
+    })
+    return { materials, sizes, complexities, prices }
   },
   async uploadModelFile(_filePath: string) {
     return 'https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/DamagedHelmet/glTF-Binary/DamagedHelmet.glb'

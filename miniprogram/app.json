@@ -1,6 +1,6 @@
 {
   "pages": [
-    "pages/model-form/model-form",
+    "pages/model-edit/model-edit",
     "pages/index/index",
     "pages/model-list/model-list",
     "pages/merchant-center/merchant-center",
@@ -8,6 +8,7 @@
     "pages/model-detail/model-detail",
     "pages/store-front/store-front",
     "pages/merchant-models/merchant-models",
+    "pages/merchant-apply/merchant-apply",
     "pages/pricing/pricing",
     "pages/shop-settings/shop-settings",
     "pages/favorites/favorites",

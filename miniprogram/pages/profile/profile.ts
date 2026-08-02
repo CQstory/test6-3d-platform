@@ -5,13 +5,20 @@ Page({
     isLoggedIn: false,
     userInfo: null as UserInfo | null,
     role: '',
+    roleLabel: '',
   },
   onLoad() { this.refresh() },
   onShow() { this.refresh() },
   refresh() {
     const loggedIn = userService.isLoggedIn()
     const info = userService.getCurrentUser()
-    this.setData({ isLoggedIn: loggedIn, userInfo: info, role: info ? info.role : 'user' })
+    const role = info ? info.role : 'user'
+    this.setData({
+      isLoggedIn: loggedIn,
+      userInfo: info,
+      role,
+      roleLabel: role === 'merchant' ? '商家' : '普通用户',
+    })
   },
 
   onGoLogin() { wx.navigateTo({ url: '/pages/login/login' }) },
@@ -19,6 +26,7 @@ Page({
   onGoFavorites() { wx.navigateTo({ url: '/pages/favorites/favorites' }) },
   onGoPricing() { wx.navigateTo({ url: '/pages/pricing/pricing' }) },
   onGoShopSettings() { wx.navigateTo({ url: '/pages/shop-settings/shop-settings' }) },
+  onGoMerchantApply() { wx.navigateTo({ url: '/pages/merchant-apply/merchant-apply' }) },
 
   onMenuTap(e: any) {
     const key = e.currentTarget.dataset.key

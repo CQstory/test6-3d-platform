@@ -1,6 +1,9 @@
 node_modules/
 miniprogram_npm/
 .codegraph/
+.superpowers/
+.trae/
+.qoder/
 *.log
 .DS_Store
 Thumbs.db

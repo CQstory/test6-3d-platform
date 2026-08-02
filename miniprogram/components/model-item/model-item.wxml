@@ -1,5 +1,5 @@
 <view class="model-item" bindtap="onTap">
-  <image class="item-thumb" src="{{model.thumbnail}}" mode="aspectFill" />
+  <image class="item-thumb" src="{{imgError ? imgFallback : model.thumbnail}}" mode="aspectFill" binderror="onImgError" />
   <view class="item-info">
     <text class="item-name">{{model.name}}</text>
     <view class="item-meta">

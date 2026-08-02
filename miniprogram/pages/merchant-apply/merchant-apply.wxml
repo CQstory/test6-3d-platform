@@ -1,27 +1,11 @@
 <view class="page">
-  <top-bar title="店铺设置" showBack="{{true}}" />
+  <top-bar title="申请入驻" showBack="{{true}}" />
   <view class="page-content">
-    <!-- 封面图 -->
-    <view class="cover-section" bindtap="onChooseCover">
-      <image class="cover-preview" src="{{coverPath || cover}}" mode="aspectFill" wx:if="{{coverPath || cover}}" />
-      <view class="cover-placeholder" wx:else>
-        <text class="cover-icon">🖼</text>
-        <text class="cover-tip">点击设置店铺封面</text>
-      </view>
-      <view class="cover-edit" wx:if="{{coverPath || cover}}">更换封面</view>
-    </view>
-
-    <!-- 头像 -->
-    <view class="avatar-row">
-      <view class="avatar-wrap" bindtap="onChooseAvatar">
-        <image class="avatar-preview" src="{{avatarPath || avatar}}" mode="aspectFill" wx:if="{{avatarPath || avatar}}" />
-        <view class="avatar-placeholder" wx:else>📷</view>
-        <view class="avatar-edit">更换头像</view>
-      </view>
-      <view class="avatar-info">
-        <text class="avatar-label">店铺头像</text>
-        <text class="avatar-sub">点击更换头像</text>
-      </view>
+    <!-- 说明卡片 -->
+    <view class="intro-card">
+      <text class="intro-icon">🏪</text>
+      <text class="intro-title">成为商家，发布你的 3D 模型</text>
+      <text class="intro-desc">入驻后可发布模型、设置多维定价，并展示在平台模型库中</text>
     </view>
 
     <!-- 基本信息 -->
@@ -53,10 +37,21 @@
       </view>
     </view>
 
-    <!-- 保存按钮 -->
+    <!-- 套餐选择 -->
+    <view class="form-group-title">选择套餐</view>
+    <view class="form-group">
+      <view class="form-item">
+        <text class="form-label">套餐</text>
+        <picker mode="selector" range="{{planNames}}" value="{{planIndex}}" bindchange="onPlanChange">
+          <view class="form-picker">{{planNames[planIndex] || '请选择套餐'}}</view>
+        </picker>
+      </view>
+    </view>
+
+    <!-- 提交 -->
     <view class="save-area">
-      <button class="btn-save" bindtap="onSave" loading="{{uploading}}" disabled="{{uploading || loading}}">
-        {{uploading ? '保存中...' : '保存'}}
+      <button class="btn-save" bindtap="onSubmit" loading="{{submitting}}" disabled="{{submitting}}">
+        {{submitting ? '提交中...' : '提交入驻申请'}}
       </button>
     </view>
 

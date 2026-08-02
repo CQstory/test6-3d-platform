@@ -114,4 +114,174 @@
   padding: 28rpx;
 }
 
+/* 定价模式切换 */
+.mode-row {
+  display: flex;
+  gap: 16rpx;
+  padding: 8rpx;
+}
+.mode-opt {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx 0;
+  border-radius: 12rpx;
+  border: 2rpx solid #ddd;
+  font-size: 28rpx;
+  color: #666;
+}
+.mode-opt.active {
+  border-color: #4ecdc4;
+  color: #4ecdc4;
+  background: #e8f8f5;
+  font-weight: 600;
+}
+
+/* 矩阵区块 */
+.matrix-section {
+  background: #fff;
+  padding: 24rpx;
+  margin: 0 24rpx 16rpx;
+  border-radius: 16rpx;
+}
+.matrix-section-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1a1a2e;
+  display: block;
+  margin-bottom: 16rpx;
+}
+.opt-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+.opt-item {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+.opt-check {
+  padding: 12rpx 24rpx;
+  border-radius: 8rpx;
+  border: 2rpx solid #ddd;
+  font-size: 26rpx;
+  color: #666;
+  background: #fafafa;
+}
+.opt-check.checked {
+  border-color: #4ecdc4;
+  color: #4ecdc4;
+  background: #e8f8f5;
+}
+.opt-factor {
+  width: 88rpx;
+  height: 56rpx;
+  border: 1rpx solid #eee;
+  border-radius: 8rpx;
+  font-size: 24rpx;
+  text-align: center;
+  color: #333;
+  background: #fff;
+}
+
+/* 自定义选项 */
+.custom-section { background: #fafbfc; }
+.custom-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+.dim-tabs {
+  display: flex;
+  gap: 8rpx;
+  flex-shrink: 0;
+}
+.dim-tab {
+  padding: 10rpx 18rpx;
+  border-radius: 8rpx;
+  font-size: 24rpx;
+  color: #666;
+  background: #fff;
+  border: 1rpx solid #ddd;
+}
+.dim-tab.active {
+  color: #4ecdc4;
+  border-color: #4ecdc4;
+  background: #e8f8f5;
+}
+.custom-input {
+  flex: 1;
+  height: 64rpx;
+  border: 1rpx solid #eee;
+  border-radius: 8rpx;
+  padding: 0 16rpx;
+  font-size: 26rpx;
+  background: #fff;
+}
+.custom-add {
+  flex-shrink: 0;
+  padding: 16rpx 28rpx;
+  border-radius: 8rpx;
+  background: linear-gradient(135deg, #4ecdc4, #44a08d);
+  color: #fff;
+  font-size: 26rpx;
+}
+
+/* 一键生成 */
+.generate-area {
+  padding: 8rpx 24rpx 24rpx;
+  text-align: center;
+}
+.btn-generate {
+  width: 100%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  font-size: 30rpx;
+  font-weight: 600;
+  border-radius: 16rpx;
+  padding: 26rpx;
+}
+.generate-tip {
+  display: block;
+  margin-top: 16rpx;
+  font-size: 22rpx;
+  color: #999;
+  text-align: center;
+}
+
+/* 矩阵表 */
+.matrix-table {
+  border: 1rpx solid #eee;
+  border-radius: 8rpx;
+  overflow: hidden;
+}
+.matrix-head,
+.matrix-row {
+  display: flex;
+  align-items: center;
+}
+.matrix-head {
+  background: #f5f6fa;
+  padding: 16rpx 0;
+}
+.matrix-row {
+  border-top: 1rpx solid #f0f0f0;
+  padding: 8rpx 0;
+}
+.cell {
+  font-size: 24rpx;
+  color: #333;
+  text-align: center;
+}
+.col-m { flex: 1.4; }
+.col-s { flex: 0.8; }
+.col-c { flex: 1.2; }
+.col-p { flex: 1.4; }
+.matrix-price {
+  height: 56rpx;
+  border: 1rpx solid #eee;
+  border-radius: 6rpx;
+  background: #fff;
+}
+
 .bottom-spacer { height: 40rpx; }

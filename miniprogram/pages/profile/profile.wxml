@@ -1,42 +1,67 @@
 <view class="profile-page">
-  <view class="profile-bg"></view>
-
-  <!-- 用户信息卡片 -->
-  <view class="user-card">
-    <image class="avatar" src="{{userInfo.avatar || 'https://api.dicebear.com/8.x/shapes/svg?seed=user'}}" mode="aspectFill" />
-    <text class="nickname">{{isLoggedIn ? userInfo.nickname : '未登录'}}</text>
-    <text class="sub-text" wx:if="{{isLoggedIn && userInfo.phone}}">{{userInfo.phone}}</text>
-    <text class="sub-text" wx:if="{{!isLoggedIn}}">登录后体验完整功能</text>
-
-    <view class="login-btns" wx:if="{{!isLoggedIn}}">
-      <button class="btn-primary" bindtap="onGoLogin">立即登录</button>
-      <button class="btn-ghost" bindtap="onGoRegister">注册账号</button>
+  <!-- 深色背景（位置不动）：头像/昵称/未登录文案位于其上 -->
+  <view class="hero-bg">
+    <view class="hero-row">
+      <image class="avatar" src="{{userInfo.avatar || 'https://api.dicebear.com/8.x/shapes/svg?seed=user'}}" mode="aspectFill" />
+      <view class="hero-info">
+        <view class="name-row">
+          <text class="nickname">{{isLoggedIn ? userInfo.nickname : '未登录'}}</text>
+          <text class="role-tag" wx:if="{{isLoggedIn}}">{{roleLabel}}</text>
+        </view>
+        <text class="sub-text" wx:if="{{isLoggedIn && userInfo.phone}}">{{userInfo.phone}}</text>
+        <text class="sub-text" wx:if="{{!isLoggedIn}}">登录后体验完整功能</text>
+      </view>
     </view>
   </view>
 
-  <!-- 菜单列表 -->
-  <view class="menu-list">
-    <view class="menu-item" bindtap="onGoFavorites">
-      <text class="menu-icon">❤️</text>
-      <text class="menu-label">我的收藏</text>
-      <text class="menu-arrow">›</text>
-    </view>
-    <view class="menu-item" bindtap="onGoPricing">
-      <text class="menu-icon">💎</text>
-      <text class="menu-label">套餐定价</text>
-      <text class="menu-arrow">›</text>
-    </view>
-    <view class="menu-item" bindtap="onGoShopSettings">
-      <text class="menu-icon">⚙️</text>
-      <text class="menu-label">店铺设置</text>
-      <text class="menu-arrow">›</text>
-    </view>
+  <!-- 登录/注册按钮：深色背景之外，白色背景上（仅未登录） -->
+  <view class="login-bar" wx:if="{{!isLoggedIn}}">
+    <button class="btn-primary" bindtap="onGoLogin">立即登录</button>
+    <button class="btn-ghost" bindtap="onGoRegister">注册账号</button>
+  </view>
 
-    <!-- 退出登录（仅已登录可见） -->
-    <view wx:if="{{isLoggedIn}}" class="menu-item logout-item" bindtap="onMenuTap" data-key="logout">
-      <text class="menu-icon">🚪</text>
-      <text class="menu-label logout-label">退出登录</text>
-      <text class="menu-arrow">›</text>
+  <!-- 我的服务 -->
+  <view class="menu-group">
+    <text class="group-title">我的服务</text>
+    <view class="menu-list">
+      <view class="menu-item" bindtap="onGoFavorites">
+        <text class="menu-icon">❤️</text>
+        <text class="menu-label">我的收藏</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item" bindtap="onGoPricing">
+        <text class="menu-icon">💎</text>
+        <text class="menu-label">套餐定价</text>
+        <text class="menu-arrow">›</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 角色分组：普通用户 → 申请入驻；商家 → 店铺设置 -->
+  <view class="menu-group">
+    <text class="group-title">{{role === 'merchant' ? '店铺管理' : '商家服务'}}</text>
+    <view class="menu-list">
+      <view class="menu-item" wx:if="{{role !== 'merchant'}}" bindtap="onGoMerchantApply">
+        <text class="menu-icon">🏪</text>
+        <text class="menu-label">申请入驻</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item" wx:if="{{role === 'merchant'}}" bindtap="onGoShopSettings">
+        <text class="menu-icon">⚙️</text>
+        <text class="menu-label">店铺设置</text>
+        <text class="menu-arrow">›</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 退出登录（仅已登录可见） -->
+  <view class="menu-group" wx:if="{{isLoggedIn}}">
+    <view class="menu-list">
+      <view class="menu-item logout-item" bindtap="onMenuTap" data-key="logout">
+        <text class="menu-icon">🚪</text>
+        <text class="menu-label logout-label">退出登录</text>
+        <text class="menu-arrow">›</text>
+      </view>
     </view>
   </view>
 </view>

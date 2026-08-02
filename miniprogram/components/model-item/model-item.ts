@@ -1,4 +1,5 @@
 import { Model, CATEGORY_MAP } from '../../types/model'
+import { FALLBACK_IMAGE } from '../../utils/util'
 
 const STATUS_MAP: Record<string, string> = {
   published: '已发布',
@@ -16,6 +17,8 @@ Component({
     categoryText: '',
     statusText: '',
     statusClass: '',
+    imgFallback: FALLBACK_IMAGE,
+    imgError: false,
   },
   observers: {
     'model.category'(cat: string) {
@@ -32,6 +35,9 @@ Component({
   methods: {
     onTap() {
       this.triggerEvent('tap', { model: this.properties.model })
+    },
+    onImgError() {
+      this.setData({ imgError: true })
     },
   },
 })

@@ -22,6 +22,8 @@ export interface Model {
   dimensions: string
   status: ModelStatus
   shopLinks: ShopLink[]
+  /** 多维价格矩阵；null = 单一定价模式（兼容旧数据） */
+  priceMatrix: PriceMatrix | null
 }
 
 /** Banner 轮播图 */
@@ -72,6 +74,37 @@ export interface ShopLink {
 
 /** 模型发布状态 */
 export type ModelStatus = 'published' | 'flagged' | 'removed'
+
+/** 价格矩阵中单个选项 */
+export interface PriceMatrixOption {
+  id: string
+  label: string
+}
+
+/** 价格矩阵（权威数据，随模型详情返回） */
+export interface PriceMatrix {
+  materials: PriceMatrixOption[]
+  sizes: PriceMatrixOption[]
+  complexities: PriceMatrixOption[]
+  /** 组合键 `材料id:尺寸id:复杂度id` → 价格；允许缺省组合 */
+  prices: Record<string, number>
+}
+
+/** 维度选项（录入表单用） */
+export interface PriceOption {
+  id: string
+  dimension: 'material' | 'size' | 'complexity'
+  label: string
+  description?: string
+  is_preset: boolean
+  is_active: boolean
+}
+
+/** 因子系数：维度 → 选项 id → 系数（一键生成入参） */
+export type PriceFactors = Record<PriceDimension, Record<string, number>>
+
+/** 价格维度枚举（编辑页勾选用） */
+export type PriceDimension = 'material' | 'size' | 'complexity'
 
 /** 分类标签映射 */
 export const CATEGORY_MAP: Record<CategoryType, string> = {

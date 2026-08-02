@@ -21,6 +21,7 @@ export const modelsData: Model[] = [
     dimensions: '',
     status: 'published',
     shopLinks: [],
+    priceMatrix: null,
   },
   {
     id: 'duck',
@@ -42,6 +43,7 @@ export const modelsData: Model[] = [
     dimensions: '',
     status: 'published',
     shopLinks: [],
+    priceMatrix: null,
   },
   {
     id: 'flight-helmet',
@@ -63,6 +65,7 @@ export const modelsData: Model[] = [
     dimensions: '',
     status: 'published',
     shopLinks: [],
+    priceMatrix: null,
   },
   {
     id: 'avocado',
@@ -84,6 +87,7 @@ export const modelsData: Model[] = [
     dimensions: '',
     status: 'published',
     shopLinks: [],
+    priceMatrix: null,
   },
   {
     id: 'barramundi-fish',
@@ -105,6 +109,7 @@ export const modelsData: Model[] = [
     dimensions: '',
     status: 'published',
     shopLinks: [],
+    priceMatrix: null,
   },
   {
     id: 'antique-camera',
@@ -126,6 +131,7 @@ export const modelsData: Model[] = [
     dimensions: '',
     status: 'published',
     shopLinks: [],
+    priceMatrix: null,
   },
   {
     id: 'lantern',
@@ -147,6 +153,7 @@ export const modelsData: Model[] = [
     dimensions: '',
     status: 'published',
     shopLinks: [],
+    priceMatrix: null,
   },
   {
     id: 'fox',
@@ -168,5 +175,6 @@ export const modelsData: Model[] = [
     dimensions: '',
     status: 'published',
     shopLinks: [],
+    priceMatrix: null,
   },
 ]

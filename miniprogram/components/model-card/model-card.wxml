@@ -1,6 +1,6 @@
 <view class="card" bindtap="onTap">
   <view class="card-thumb-wrap">
-    <image class="card-thumb" src="{{model.thumbnail}}" mode="aspectFill" lazy-load />
+    <image class="card-thumb" src="{{imgError ? imgFallback : model.thumbnail}}" mode="aspectFill" lazy-load binderror="onImgError" />
     <view class="card-tag" wx:if="{{model.faces}}">
       <text class="tag-text">{{facesText}}</text>
     </view>

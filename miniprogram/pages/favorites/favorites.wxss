@@ -1,6 +1,6 @@
 page { background: #f5f5f5; }
 .page { min-height: 100vh; }
-.page-content { padding-top: 180rpx; padding-left: 24rpx; padding-right: 24rpx; padding-bottom: 40rpx; }
+.page-content { padding-left: 24rpx; padding-right: 24rpx; padding-bottom: 40rpx; }
 .model-grid { display: flex; flex-wrap: wrap; justify-content: space-between; }
 .grid-item { width: 340rpx; margin-bottom: 16rpx; }
 .empty { text-align: center; padding: 80rpx 0; color: #999; font-size: 28rpx; }

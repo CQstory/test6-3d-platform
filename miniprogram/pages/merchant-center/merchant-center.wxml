@@ -1,5 +1,5 @@
 <view class="page">
-  <top-bar title="{{isMerchant ? '商家' : '消息'}}" />
+  <top-bar title="{{isMerchant ? '店铺中心' : '消息'}}" />
   <view class="page-content">
     <!-- 普通用户：通知占位 -->
     <view class="placeholder" wx:if="{{!isMerchant}}">
@@ -10,6 +10,20 @@
 
     <!-- 商家角色 -->
     <block wx:if="{{isMerchant}}">
+      <!-- 店铺信息卡：点击进入店铺设置 -->
+      <view class="shop-card" bindtap="onShopTap">
+        <image class="shop-cover" src="{{shop.cover}}" mode="aspectFill" />
+        <view class="shop-card-overlay"></view>
+        <view class="shop-card-row">
+          <image class="shop-avatar" src="{{shop.avatar}}" mode="aspectFill" />
+          <view class="shop-card-info">
+            <text class="shop-name">{{shop.name || '我的店铺'}}</text>
+            <text class="shop-desc">{{shop.description || '完善店铺信息，让更多买家认识你'}}</text>
+          </view>
+          <text class="shop-manage">管理 ›</text>
+        </view>
+      </view>
+
       <!-- 内部 Tab -->
       <view class="inner-tabs">
         <view
@@ -33,27 +47,12 @@
         </view>
       </view>
 
-      <!-- 数据看板 Tab -->
+      <!-- 数据看板 Tab（统计业务后期开发，先占位） -->
       <view class="tab-content" wx:if="{{activeTab === 'stats'}}">
-        <view class="stats-cards">
-          <view class="stat-card">
-            <text class="stat-num">{{stats.total}}</text>
-            <text class="stat-label">模型总数</text>
-          </view>
-          <view class="stat-card">
-            <text class="stat-num">{{stats.views}}</text>
-            <text class="stat-label">总浏览量</text>
-          </view>
-          <view class="stat-card">
-            <text class="stat-num">{{stats.favorites}}</text>
-            <text class="stat-label">总收藏数</text>
-          </view>
-        </view>
-        <view class="rank-section">
-          <text class="rank-title">浏览排行</text>
-          <view wx:for="{{sortedModels}}" wx:key="id" wx:if="{{index < 10}}">
-            <model-item model="{{item}}" showStatus="{{false}}" showPrice="{{false}}" />
-          </view>
+        <view class="placeholder">
+          <text class="placeholder-icon">📊</text>
+          <text class="placeholder-text">数据统计建设中</text>
+          <text class="placeholder-sub">浏览量、收藏、成交等数据看板即将上线</text>
         </view>
       </view>
 

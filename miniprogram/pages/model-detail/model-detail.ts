@@ -1,6 +1,7 @@
 import { Model } from '../../types/model'
 import { modelService } from '../../services/model-service'
 import { userService } from '../../services/user-service'
+import { FALLBACK_IMAGE } from '../../utils/util'
 
 /** 全局恢复标记 —— 跨页面实例通信，比 per-instance flag 更可靠 */
 const app = getApp<IAppOption>()
@@ -10,6 +11,8 @@ Page({
   data: {
     model: {} as Model,
     facesText: '',
+    imgFallback: FALLBACK_IMAGE,
+    imgError: false,
   },
   /** 记录当前模型 ID，用于从 Viewer 返回后重建页面 */
   _modelId: '' as string,
@@ -101,6 +104,10 @@ Page({
 
   onPageTap(e: any) {
     console.log('[model-detail] page tap detected, target:', e.target.id || e.target.dataset || 'no-id')
+  },
+
+  onImgError() {
+    this.setData({ imgError: true })
   },
 
   onOpenLink(e: any) {

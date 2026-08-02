@@ -3,6 +3,20 @@
   "setting": {
     "skylineRenderEnable": true,
     "urlCheck": false,
-    "checkSiteMap": false
+    "checkSiteMap": false,
+    "compileHotReLoad": true
+  },
+  "condition": {
+    "miniprogram": {
+      "list": [
+        {
+          "name": "pages/profile/profile",
+          "pathName": "pages/profile/profile",
+          "query": "",
+          "scene": null,
+          "launchMode": "default"
+        }
+      ]
+    }
   }
 }

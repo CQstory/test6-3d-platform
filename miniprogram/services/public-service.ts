@@ -7,11 +7,16 @@ import { plansData } from '../data/plans'
 /* ========== 类型 ========== */
 
 interface BannerItem { id: string; image: string; title: string; subtitle: string; link: string }
-interface WrappedList<T> { value: T[] }
 
 interface PlanItem {
   id: string; plan_key: string; name: string; price: number
   slots: number; features: string[]; is_highlighted: boolean
+}
+
+/** 后端实际返回裸数组（部分接口可能是 {items} 包装），统一归一化为数组 */
+function unwrapList<T>(res: T[] | { items?: T[] } | null): T[] {
+  if (Array.isArray(res)) return res
+  return (res && res.items) || []
 }
 
 /* ========== 映射 ========== */
@@ -37,12 +42,12 @@ export interface IPublicService {
 
 const realService: IPublicService = {
   async getBanners() {
-    const res = await api.get<WrappedList<BannerItem>>('/banners')
-    return (res.value || []) as Banner[]
+    const res = await api.get<BannerItem[] | { items: BannerItem[] }>('/banners')
+    return unwrapList(res) as Banner[]
   },
   async getPlans() {
-    const res = await api.get<WrappedList<PlanItem>>('/plans')
-    return (res.value || []).map(mapPlan)
+    const res = await api.get<PlanItem[] | { items: PlanItem[] }>('/plans')
+    return unwrapList(res).map(mapPlan)
   },
 }
 
