@@ -1,4 +1,5 @@
 import { CATEGORY_MAP, CategoryType } from '../../types/model'
+import { FALLBACK_IMAGE } from '../../utils/util'
 
 Component({
   properties: {
@@ -8,6 +9,8 @@ Component({
     isFavorite: false,
     facesText: '',
     categoryText: '',
+    imgFallback: FALLBACK_IMAGE,
+    imgError: false,
   },
   observers: {
     'model': function (this: any, model: any) {
@@ -23,6 +26,9 @@ Component({
   methods: {
     onTap() {
       this.triggerEvent('tap', { model: this.properties.model })
+    },
+    onImgError() {
+      this.setData({ imgError: true })
     },
     loadFavoriteStatus(modelId: string) {
       try {

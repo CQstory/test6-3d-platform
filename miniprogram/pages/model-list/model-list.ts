@@ -1,5 +1,6 @@
 import { Model } from '../../types/model'
 import { modelService } from '../../services/model-service'
+import { userService } from '../../services/user-service'
 
 Page({
   data: {
@@ -8,6 +9,7 @@ Page({
     categories: [] as { key: string; label: string }[],
     allModels: [] as Model[],
     displayModels: [] as Model[],
+    role: '',
   },
   async onLoad() {
     const models = await modelService.getHotModels()
@@ -15,10 +17,12 @@ Page({
       { key: 'all', label: '全部' },
       ...modelService.getAllCategories(),
     ]
+    const user = userService.getCurrentUser()
     this.setData({
       allModels: models,
       displayModels: models,
       categories: cats,
+      role: user ? user.role : 'user',
     })
   },
   onSearchInput(e: any) {

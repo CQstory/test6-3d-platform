@@ -1,3 +1,7 @@
+/* 占位 wrapper：普通流式元素，高度由内联样式 calc(statusBarHeight px + 88rpx) 撑开，
+   与 fixed 顶栏高度一致，将页面内容顶到顶栏下方 */
+.top-bar-wrapper {}
+
 .top-bar {
   position: fixed;
   top: 0; left: 0; right: 0;
@@ -5,7 +9,7 @@
   background: #ffffff;
   box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
 }
-.status-bar-spacer { height: var(--status-bar-height, 44px); }
+.status-bar-spacer { height: 44px; }
 .bar-content {
   display: flex; align-items: center; justify-content: center;
   height: 88rpx; position: relative;

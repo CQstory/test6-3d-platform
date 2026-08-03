@@ -3,6 +3,8 @@
   "setting": {
     "skylineRenderEnable": true,
     "urlCheck": false,
-    "checkSiteMap": false
-  }
+    "checkSiteMap": false,
+    "compileHotReLoad": true
+  },
+  "condition": {}
 }

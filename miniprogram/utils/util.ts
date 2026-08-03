@@ -13,6 +13,10 @@ export const formatTime = (date: Date) => {
   )
 }
 
+/** 图片加载失败时的兜底占位（1x1 透明 PNG，露出容器背景色） */
+export const FALLBACK_IMAGE =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='
+
 const formatNumber = (n: number) => {
   const s = n.toString()
   return s[1] ? s : '0' + s

@@ -1,11 +1,138 @@
 <view class="page">
-  <top-bar title="消息" />
+  <top-bar title="{{isMerchant ? '店铺中心' : '消息'}}" />
   <view class="page-content">
-    <view class="placeholder">
+    <!-- 普通用户：通知占位 -->
+    <view class="placeholder" wx:if="{{!isMerchant}}">
       <text class="placeholder-icon">💬</text>
-      <text class="placeholder-text">消息中心建设中</text>
-      <text class="placeholder-sub">敬请期待</text>
+      <text class="placeholder-text">暂无新消息</text>
+      <text class="placeholder-sub">系统通知、物流信息等将显示在此处</text>
     </view>
+
+    <!-- 商家角色 -->
+    <block wx:if="{{isMerchant}}">
+      <!-- 店铺信息卡：点击进入店铺设置 -->
+      <view class="shop-card" bindtap="onShopTap">
+        <image class="shop-cover" src="{{shop.cover}}" mode="aspectFill" />
+        <view class="shop-card-overlay"></view>
+        <view class="shop-card-row">
+          <image class="shop-avatar" src="{{shop.avatar}}" mode="aspectFill" />
+          <view class="shop-card-info">
+            <text class="shop-name">{{shop.name || '我的店铺'}}</text>
+            <text class="shop-desc">{{shop.description || '完善店铺信息，让更多买家认识你'}}</text>
+          </view>
+          <text class="shop-manage">管理 ›</text>
+        </view>
+      </view>
+
+      <!-- 内部 Tab -->
+      <view class="inner-tabs">
+        <view
+          class="inner-tab {{activeTab === 'models' ? 'active' : ''}}"
+          data-tab="models" bindtap="onTabTap"
+        >模型管理</view>
+        <view
+          class="inner-tab {{activeTab === 'stats' ? 'active' : ''}}"
+          data-tab="stats" bindtap="onTabTap"
+        >数据看板</view>
+      </view>
+
+      <!-- 模型管理 Tab -->
+      <view class="tab-content" wx:if="{{activeTab === 'models'}}">
+        <view wx:if="{{models.length === 0}}" class="empty-state">
+          <text class="empty-icon">📦</text>
+          <text class="empty-text">暂无模型</text>
+        </view>
+        <view wx:for="{{models}}" wx:key="id">
+          <model-item model="{{item}}" showStatus="{{true}}" showPrice="{{true}}" bind:tap="onModelTap" />
+        </view>
+      </view>
+
+      <!-- 数据看板 Tab：浏览/收藏/点击 三指标（不做成交） -->
+      <view class="tab-content" wx:if="{{activeTab === 'stats'}}">
+        <!-- 概览卡片：收藏卡双值（当前·累计，累计含收藏后取消） -->
+        <view class="stats-cards">
+          <view class="stat-card"><text class="stat-num">{{stats.total}}</text><text class="stat-label">模型总数</text></view>
+          <view class="stat-card"><text class="stat-num">{{stats.views}}</text><text class="stat-label">总浏览量</text></view>
+          <view class="stat-card"><text class="stat-num">{{stats.clicks}}</text><text class="stat-label">总点击量</text></view>
+          <view class="stat-card">
+            <text class="stat-num">{{stats.favorites}}</text>
+            <text class="stat-label">当前收藏 · 累计 {{stats.favoriteAdded}}</text>
+          </view>
+        </view>
+
+        <!-- 深度意向：曾收藏又取消（强于普通浏览，未转化为当前收藏） -->
+        <view class="intent-bar" wx:if="{{favoriteDiff > 0}}">
+          <text>深度意向：{{favoriteDiff}} 人次曾收藏后取消，未计入当前收藏但强于普通浏览</text>
+        </view>
+
+        <!-- 浏览 → 点击转化率 -->
+        <view class="conv-bar">
+          <view class="conv-head">
+            <text class="conv-label">浏览 → 点击转化率</text>
+            <text class="conv-value">{{stats.conversion}}%</text>
+          </view>
+          <view class="conv-track">
+            <view class="conv-fill" style="width: {{stats.conversion}}%"></view>
+          </view>
+        </view>
+
+        <!-- 排行：点击/浏览/收藏 三 Tab（收藏按累计 favoriteAdded 排序） -->
+        <view class="rank-section">
+          <view class="rank-tabs">
+            <text class="rank-tab {{rankTab === 'clicks' ? 'active' : ''}}" data-tab="clicks" bindtap="onRankTabTap">点击</text>
+            <text class="rank-tab {{rankTab === 'views' ? 'active' : ''}}" data-tab="views" bindtap="onRankTabTap">浏览</text>
+            <text class="rank-tab {{rankTab === 'favorites' ? 'active' : ''}}" data-tab="favorites" bindtap="onRankTabTap">收藏</text>
+          </view>
+          <view class="rank-row" wx:for="{{rankList}}" wx:key="id">
+            <text class="rank-idx {{index < 3 ? 'top' : ''}}">{{index + 1}}</text>
+            <text class="rank-name">{{item.name}}</text>
+            <text class="rank-num">👁️ {{item.views}}</text>
+            <text class="rank-num fav">❤️ {{item.favoriteAdded}}</text>
+            <text class="rank-num click">🖱️ {{item.clicks}}</text>
+          </view>
+          <view wx:if="{{rankList.length === 0}}" class="rank-empty">暂无数据</view>
+        </view>
+
+        <!-- 状态分布 -->
+        <view class="status-dist">
+          <text class="dist-chip">已发布 {{statusDist.published}}</text>
+          <text class="dist-chip warn">违规 {{statusDist.flagged}}</text>
+          <text class="dist-chip gray">已撤回 {{statusDist.removed}}</text>
+        </view>
+
+        <!-- 趋势（后端 /merchant/stats/trend 就绪后显示，三指标） -->
+        <view class="trend-section" wx:if="{{trendReady}}">
+          <text class="trend-title">近 7 天浏览 / 收藏 / 点击</text>
+          <view class="trend-chart">
+            <view class="trend-bars">
+              <view class="bar-group" wx:for="{{trend.dates}}" wx:key="*this">
+                <view class="bar-stack">
+                  <view class="bar bar-view" style="height: {{trend.views[index]}}%"></view>
+                  <view class="bar bar-fav" style="height: {{trend.favorites[index]}}%"></view>
+                  <view class="bar bar-click" style="height: {{trend.clicks[index]}}%"></view>
+                </view>
+                <text class="bar-date">{{item}}</text>
+              </view>
+            </view>
+            <view class="trend-legend">
+              <text class="legend-item view">■ 浏览</text>
+              <text class="legend-item fav">■ 收藏</text>
+              <text class="legend-item click">■ 点击</text>
+            </view>
+          </view>
+        </view>
+        <view class="trend-placeholder" wx:else>
+          <text>趋势数据即将上线（需后端 /merchant/stats/trend）</text>
+        </view>
+      </view>
+
+      <!-- 浮动新增按钮 -->
+      <view class="fab" wx:if="{{activeTab === 'models'}}" bindtap="onAddModel">
+        <text class="fab-icon">+</text>
+      </view>
+    </block>
+
+    <view class="bottom-spacer"></view>
   </view>
-  <tab-bar active="merchant" />
+  <tab-bar active="merchant" role="{{role}}" />
 </view>

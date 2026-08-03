@@ -1,0 +1,60 @@
+<view class="page">
+  <top-bar title="申请入驻" showBack="{{true}}" />
+  <view class="page-content">
+    <!-- 说明卡片 -->
+    <view class="intro-card">
+      <text class="intro-icon">🏪</text>
+      <text class="intro-title">成为商家，发布你的 3D 模型</text>
+      <text class="intro-desc">入驻后可发布模型、设置多维定价，并展示在平台模型库中</text>
+    </view>
+
+    <!-- 基本信息 -->
+    <view class="form-group">
+      <view class="form-item">
+        <text class="form-label">店铺名称 *</text>
+        <input class="form-input" value="{{name}}" bindinput="onInput" data-field="name" placeholder="店铺名称" />
+      </view>
+      <view class="form-item form-item-col">
+        <text class="form-label">店铺简介</text>
+        <textarea class="form-textarea" value="{{description}}" bindinput="onInput" data-field="description" placeholder="介绍你的店铺与作品风格..." maxlength="200" />
+      </view>
+    </view>
+
+    <!-- 联系方式 -->
+    <view class="form-group-title">联系方式</view>
+    <view class="form-group">
+      <view class="form-item">
+        <text class="form-label">微信</text>
+        <input class="form-input" value="{{wechat}}" bindinput="onInput" data-field="wechat" placeholder="微信号" />
+      </view>
+      <view class="form-item">
+        <text class="form-label">电话</text>
+        <input class="form-input" type="number" value="{{phone}}" bindinput="onInput" data-field="phone" placeholder="联系电话" />
+      </view>
+      <view class="form-item">
+        <text class="form-label">邮箱</text>
+        <input class="form-input" value="{{email}}" bindinput="onInput" data-field="email" placeholder="联系邮箱" />
+      </view>
+    </view>
+
+    <!-- 套餐选择 -->
+    <view class="form-group-title">选择套餐</view>
+    <view class="form-group">
+      <view class="form-item">
+        <text class="form-label">套餐</text>
+        <picker mode="selector" range="{{planNames}}" value="{{planIndex}}" bindchange="onPlanChange">
+          <view class="form-picker">{{planNames[planIndex] || '请选择套餐'}}</view>
+        </picker>
+      </view>
+    </view>
+
+    <!-- 提交 -->
+    <view class="save-area">
+      <button class="btn-save" bindtap="onSubmit" loading="{{submitting}}" disabled="{{submitting}}">
+        {{submitting ? '提交中...' : '提交入驻申请'}}
+      </button>
+    </view>
+
+    <view class="bottom-spacer"></view>
+  </view>
+</view>

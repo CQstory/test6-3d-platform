@@ -7,8 +7,9 @@ App<IAppOption>({
     systemInfo: null as WechatMiniprogram.SystemInfo | null,
   },
   onLaunch() {
-    const info = wx.getSystemInfoSync()
-    this.globalData.systemInfo = info
+    // 基础库 3.x 推荐 wx.getWindowInfo（wx.getSystemInfoSync 已弃用；typings 旧版无类型，用 any 断言）
+    const info = (wx as any).getWindowInfo()
+    this.globalData.systemInfo = info as any
     // CSS 变量设置：小程序环境 document 为适配器 shim，没有 documentElement
     try {
       if (document && document.documentElement) {

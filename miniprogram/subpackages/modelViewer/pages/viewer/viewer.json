@@ -1,4 +1,6 @@
 {
   "navigationStyle": "custom",
-  "usingComponents": {}
+  "usingComponents": {
+    "model-viewer": "../../components/model-viewer/model-viewer"
+  }
 }

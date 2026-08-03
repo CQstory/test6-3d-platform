@@ -1,7 +1,8 @@
 {
   "usingComponents": {
     "top-bar": "/components/top-bar/top-bar",
-    "tab-bar": "/components/tab-bar/tab-bar"
+    "tab-bar": "/components/tab-bar/tab-bar",
+    "model-item": "/components/model-item/model-item"
   },
   "navigationStyle": "custom"
 }

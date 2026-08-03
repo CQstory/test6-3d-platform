@@ -7,7 +7,6 @@ page {
 }
 
 .page-content {
-  padding-top: 240rpx;
   padding-bottom: 120rpx;
 }
 

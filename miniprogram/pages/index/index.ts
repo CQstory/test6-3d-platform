@@ -1,6 +1,7 @@
 import { Model, Banner } from '../../types/model'
 import { modelService } from '../../services/model-service'
 import { bannersData } from '../../data/banners'
+import { userService } from '../../services/user-service'
 
 Page({
   data: {
@@ -9,15 +10,18 @@ Page({
     displayHotModels: [] as Model[],
     hotExpanded: false,
     featuredModels: [] as Model[],
+    role: '',
   },
   async onLoad() {
     const hotModels = await modelService.getHotModels()
     const featuredModels = await modelService.getFeaturedModels()
+    const user = userService.getCurrentUser()
     this.setData({
       banners: bannersData,
       hotModels,
       displayHotModels: hotModels.slice(0, 2),
       featuredModels,
+      role: user ? user.role : 'user',
     })
   },
   onExpandHot() {

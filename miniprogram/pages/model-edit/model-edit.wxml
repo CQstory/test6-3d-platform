@@ -1,0 +1,194 @@
+<view class="page">
+  <top-bar title="{{title}}" showBack="{{true}}" />
+  <view class="page-content">
+    <!-- 模型文件上传 -->
+    <view class="form-section">
+      <text class="section-label" wx:if="{{!isEdit}}">模型文件 *</text>
+      <text class="section-label" wx:if="{{isEdit}}">模型文件</text>
+      <view class="upload-btn" bindtap="onChooseModelFile">
+        <text wx:if="{{!modelFilePath && !modelUrl}}">📁 点击上传模型文件</text>
+        <text wx:else class="file-name">📁 {{modelFileName || '已选择文件'}}</text>
+      </view>
+    </view>
+
+    <!-- 缩略图 -->
+    <view class="form-section">
+      <text class="section-label">缩略图</text>
+      <view class="upload-btn" bindtap="onChooseThumbnail">
+        <text wx:if="{{!thumbnailPath && !thumbnail}}">🖼 点击上传</text>
+        <image wx:else class="preview-img" src="{{thumbnailPath || thumbnail}}" mode="aspectFill" />
+      </view>
+    </view>
+
+    <!-- 基础信息 -->
+    <view class="form-group">
+      <view class="form-item">
+        <text class="form-label">名称 *</text>
+        <input class="form-input" value="{{name}}" bindinput="onInput" data-field="name" placeholder="模型名称" />
+      </view>
+      <view class="form-item">
+        <text class="form-label">描述</text>
+        <textarea class="form-textarea" value="{{description}}" bindinput="onInput" data-field="description" placeholder="模型描述..." />
+      </view>
+      <view class="form-item">
+        <text class="form-label">分类 *</text>
+        <picker mode="selector" range="{{categoriesList}}" value="{{categoryIndex}}" bindchange="onCategoryChange">
+          <view class="form-picker">{{categoriesList[categoryIndex]}}</view>
+        </picker>
+      </view>
+      <view class="form-item">
+        <text class="form-label">标签</text>
+        <input class="form-input" value="{{tagInput}}" bindinput="onInput" data-field="tagInput" placeholder="标签，多个用逗号分隔" />
+      </view>
+      <view class="form-item">
+        <text class="form-label">面数</text>
+        <input class="form-input" type="number" value="{{faces}}" bindinput="onInput" data-field="faces" placeholder="面数" />
+      </view>
+      <view class="form-item">
+        <text class="form-label">格式 *</text>
+        <view class="format-row">
+          <view class="format-opt {{format === 'glb' ? 'active' : ''}}" data-format="glb" bindtap="onFormatChange">GLB</view>
+          <view class="format-opt {{format === 'obj' ? 'active' : ''}}" data-format="obj" bindtap="onFormatChange">OBJ</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 定价模式 -->
+    <view class="form-group-title">定价</view>
+    <view class="form-group">
+      <view class="mode-row">
+        <view class="mode-opt {{priceMode === 'single' ? 'active' : ''}}" data-mode="single" bindtap="onPriceModeChange">单一定价</view>
+        <view class="mode-opt {{priceMode === 'matrix' ? 'active' : ''}}" data-mode="matrix" bindtap="onPriceModeChange">多维定价</view>
+      </view>
+    </view>
+
+    <!-- 单一定价 -->
+    <block wx:if="{{priceMode === 'single'}}">
+      <view class="form-group">
+        <view class="form-item">
+          <text class="form-label">价格（元）</text>
+          <input class="form-input" type="digit" value="{{price}}" bindinput="onInput" data-field="price" placeholder="0 表示免费" />
+        </view>
+        <view class="form-item">
+          <text class="form-label">材质</text>
+          <input class="form-input" value="{{material}}" bindinput="onInput" data-field="material" placeholder="如：PBR金属、树脂" />
+        </view>
+        <view class="form-item">
+          <text class="form-label">规格/尺寸</text>
+          <input class="form-input" value="{{dimensions}}" bindinput="onInput" data-field="dimensions" placeholder="如：15×10×8cm" />
+        </view>
+      </view>
+    </block>
+
+    <!-- 多维定价 -->
+    <block wx:if="{{priceMode === 'matrix'}}">
+      <view class="form-group">
+        <view class="form-item">
+          <text class="form-label">基础价（元）*</text>
+          <input class="form-input" type="digit" value="{{basePrice}}" bindinput="onInput" data-field="basePrice" placeholder="如：99" />
+        </view>
+      </view>
+
+      <!-- 材料选项 -->
+      <view class="matrix-section">
+        <view class="matrix-section-title">材料</view>
+        <view class="opt-list">
+          <view class="opt-item" wx:for="{{materialOptions}}" wx:key="id">
+            <view class="opt-check {{item.checked ? 'checked' : ''}}" data-dim="material" data-id="{{item.id}}" bindtap="onToggleOption">{{item.label}}</view>
+            <input class="opt-factor" type="digit" value="{{item.factor}}" data-dim="material" data-id="{{item.id}}" bindinput="onFactorInput" placeholder="系数" />
+          </view>
+        </view>
+      </view>
+
+      <!-- 尺寸选项 -->
+      <view class="matrix-section">
+        <view class="matrix-section-title">尺寸</view>
+        <view class="opt-list">
+          <view class="opt-item" wx:for="{{sizeOptions}}" wx:key="id">
+            <view class="opt-check {{item.checked ? 'checked' : ''}}" data-dim="size" data-id="{{item.id}}" bindtap="onToggleOption">{{item.label}}</view>
+            <input class="opt-factor" type="digit" value="{{item.factor}}" data-dim="size" data-id="{{item.id}}" bindinput="onFactorInput" placeholder="系数" />
+          </view>
+        </view>
+      </view>
+
+      <!-- 复杂度选项 -->
+      <view class="matrix-section">
+        <view class="matrix-section-title">复杂度</view>
+        <view class="opt-list">
+          <view class="opt-item" wx:for="{{complexityOptions}}" wx:key="id">
+            <view class="opt-check {{item.checked ? 'checked' : ''}}" data-dim="complexity" data-id="{{item.id}}" bindtap="onToggleOption">{{item.label}}</view>
+            <input class="opt-factor" type="digit" value="{{item.factor}}" data-dim="complexity" data-id="{{item.id}}" bindinput="onFactorInput" placeholder="系数" />
+          </view>
+        </view>
+      </view>
+
+      <!-- 自定义选项 -->
+      <view class="matrix-section custom-section">
+        <view class="matrix-section-title">添加自定义选项</view>
+        <view class="custom-row">
+          <view class="dim-tabs">
+            <view class="dim-tab {{customDimension === 'material' ? 'active' : ''}}" data-dim="material" bindtap="onCustomDimensionChange">材料</view>
+            <view class="dim-tab {{customDimension === 'size' ? 'active' : ''}}" data-dim="size" bindtap="onCustomDimensionChange">尺寸</view>
+            <view class="dim-tab {{customDimension === 'complexity' ? 'active' : ''}}" data-dim="complexity" bindtap="onCustomDimensionChange">复杂度</view>
+          </view>
+          <input class="custom-input" value="{{customLabel}}" bindinput="onCustomLabelInput" placeholder="选项名称，如：ABS" />
+          <view class="custom-add" bindtap="onAddCustomOption">添加</view>
+        </view>
+      </view>
+
+      <!-- 一键生成 -->
+      <view class="generate-area">
+        <button class="btn-generate" bindtap="onGenerateMatrix" loading="{{generating}}" disabled="{{generating}}">
+          一键生成价格矩阵
+        </button>
+        <text class="generate-tip">按 基础价 × 材料系数 × 尺寸系数 × 复杂度系数 生成，生成后可逐格微调</text>
+      </view>
+
+      <!-- 矩阵预览/微调 -->
+      <view class="matrix-section" wx:if="{{matrixLoaded && matrixRows.length > 0}}">
+        <view class="matrix-section-title">价格矩阵（{{matrixRows.length}} 个组合，可微调）</view>
+        <view class="matrix-table">
+          <view class="matrix-head">
+            <text class="cell col-m">材料</text>
+            <text class="cell col-s">尺寸</text>
+            <text class="cell col-c">复杂度</text>
+            <text class="cell col-p">价格（元）</text>
+          </view>
+          <view class="matrix-row" wx:for="{{matrixRows}}" wx:key="key">
+            <text class="cell col-m">{{item.material}}</text>
+            <text class="cell col-s">{{item.size}}</text>
+            <text class="cell col-c">{{item.complexity}}</text>
+            <input class="cell col-p matrix-price" type="digit" value="{{item.price}}" data-key="{{item.key}}" bindinput="onMatrixPriceInput" />
+          </view>
+        </view>
+      </view>
+    </block>
+
+    <!-- 电商链接 -->
+    <view class="form-group-title">电商链接</view>
+    <view class="form-group">
+      <view class="link-item" wx:for="{{shopLinks}}" wx:key="_key">
+        <view class="link-row">
+          <input class="link-input" value="{{item.platform}}" data-key="{{item._key}}" data-field="platform" bindinput="onLinkInput" placeholder="平台（淘宝/京东...）" />
+          <input class="link-input" value="{{item.shopName}}" data-key="{{item._key}}" data-field="shopName" bindinput="onLinkInput" placeholder="店铺名" />
+        </view>
+        <view class="link-row">
+          <input class="link-input full" value="{{item.url}}" data-key="{{item._key}}" data-field="url" bindinput="onLinkInput" placeholder="链接地址" />
+          <text class="link-remove" data-key="{{item._key}}" bindtap="onRemoveLink">✕</text>
+        </view>
+      </view>
+      <view class="add-link" bindtap="onAddLink" wx:if="{{shopLinks.length < 5}}">
+        <text>+ 添加电商链接</text>
+      </view>
+    </view>
+
+    <!-- 保存按钮 -->
+    <view class="save-area">
+      <button class="btn-save" bindtap="onSave" loading="{{uploading}}" disabled="{{uploading}}">
+        {{isEdit ? '保存修改' : '上传并发布'}}
+      </button>
+    </view>
+
+    <view class="bottom-spacer"></view>
+  </view>
+</view>

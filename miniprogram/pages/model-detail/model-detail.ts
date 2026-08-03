@@ -1,14 +1,22 @@
 import { Model } from '../../types/model'
 import { modelService } from '../../services/model-service'
 import { userService } from '../../services/user-service'
+import { FALLBACK_IMAGE } from '../../utils/util'
 
 Page({
   data: {
     model: {} as Model,
     facesText: '',
+    imgFallback: FALLBACK_IMAGE,
+    imgError: false,
   },
+  /** 记录当前模型 ID */
+  _modelId: '' as string,
+
   async onLoad(options: { id?: string }) {
     console.log('[model-detail] onLoad, options=', options)
+    this._modelId = options.id || ''
+
     if (!userService.isLoggedIn()) {
       wx.showToast({ title: '请先登录', icon: 'none', duration: 1500 })
       setTimeout(() => {
@@ -17,39 +25,81 @@ Page({
       return
     }
 
-    const id = options.id || ''
-    const model = await modelService.getModelById(id)
-    if (model) {
-      this.setData({
-        model,
-        facesText: model.faces ? (model.faces / 1000).toFixed(1) + 'K面' : '',
-      })
-      console.log('[model-detail] model loaded:', model.name)
-      modelService.recordView(id).catch(() => {})
+    const id = this._modelId
+    if (!id) return
+
+    try {
+      const model = await modelService.getModelById(id)
+      if (model) {
+        this.setData({
+          model,
+          facesText: model.faces ? (model.faces / 1000).toFixed(1) + 'K面' : '',
+        })
+        console.log('[model-detail] model loaded:', model.name)
+        modelService.recordView(id).catch(() => {})
+      } else {
+        console.warn('[model-detail] model not found for id:', id)
+      }
+    } catch (err: any) {
+      console.error('[model-detail] Failed to load model:', err)
+      // API 请求失败时不阻塞页面，保留空状态让用户可操作
     }
   },
+
   onShow() {
-    console.log('[model-detail] onShow, model.id=', (this.data.model as Model).id)
-    // 强制刷新视图绑定（subpackage GL 页面可能破坏父页 WXML 绑定）
-    this.setData({ _ts: Date.now() })
+    console.log('[model-detail] onShow, modelId=', this._modelId)
+
+    // 简单的数据刷新
+    const m = this.data.model as Model
+    if (m && m.id) {
+      this.setData({
+        facesText: m.faces ? (m.faces / 1000).toFixed(1) + 'K面' : '',
+      })
+    }
   },
+
   onUnload() {
     console.log('[model-detail] onUnload — page destroyed')
   },
+
   onPageTap(e: any) {
     console.log('[model-detail] page tap detected, target:', e.target.id || e.target.dataset || 'no-id')
   },
+
+  onImgError() {
+    this.setData({ imgError: true })
+  },
+
+  onOpenLink(e: any) {
+    const url = e.currentTarget.dataset.url
+    if (url) {
+      // 点击跳转埋点：每次点击 +1，不去重（浏览量可能小于点击量）
+      modelService.recordClick(this._modelId, {
+        link_url: url,
+        platform: e.currentTarget.dataset.platform || '',
+      }).catch(() => {})
+      wx.setClipboardData({
+        data: url,
+        success: () => wx.showToast({ title: '链接已复制，请在浏览器中打开', icon: 'none' }),
+      })
+    }
+  },
+
   onView3D() {
     console.log('[model-detail] onView3D tapped')
-    const m = this.data.model
+    const m = this.data.model as Model
+    const id = m.id || this._modelId
+    const name = m.name || ''
+    const modelUrl = m.modelUrl || ''
     wx.navigateTo({
       url:
         '/subpackages/modelViewer/pages/viewer/viewer?id=' +
-        m.id +
+        encodeURIComponent(id) +
         '&name=' +
-        encodeURIComponent(m.name) +
+        encodeURIComponent(name) +
         '&modelUrl=' +
-        encodeURIComponent(m.modelUrl),
+        encodeURIComponent(modelUrl),
     })
   },
+
 })
