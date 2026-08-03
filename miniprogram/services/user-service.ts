@@ -55,9 +55,10 @@ const PHONE_RE = /^1[3-9]\d{9}$/
 /* ========== 统一导出 ========== */
 
 export const userService = {
-  /* ---- 手机号密码登录 ---- */
+  /* ---- 手机号/用户名密码登录（兼容两种） ---- */
   async login(phone: string, password: string): Promise<AuthResult> {
-    if (!PHONE_RE.test(phone)) return { success: false, msg: '请输入正确的手机号' }
+    // 兼容用户名登录：不强制手机号格式（后端校验）；注册仍严格要求手机号
+    if (!phone.trim()) return { success: false, msg: '请输入手机号或用户名' }
     if (password.length < 6) return { success: false, msg: '密码至少6位' }
 
     if (USE_MOCK) {

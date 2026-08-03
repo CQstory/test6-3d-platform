@@ -6,17 +6,5 @@
     "checkSiteMap": false,
     "compileHotReLoad": true
   },
-  "condition": {
-    "miniprogram": {
-      "list": [
-        {
-          "name": "pages/profile/profile",
-          "pathName": "pages/profile/profile",
-          "query": "",
-          "scene": null,
-          "launchMode": "default"
-        }
-      ]
-    }
-  }
+  "condition": {}
 }

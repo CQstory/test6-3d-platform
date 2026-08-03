@@ -1,50 +1,12 @@
 <view class="viewer-page">
-  <view class="viewer-header">
-    <view class="header-back" bindtap="onBack">
-      <text class="back-icon">&#8249;</text>
-      <text class="back-text">返回</text>
-    </view>
-    <text class="header-title">{{modelName || '3D 查看器'}}</text>
-  </view>
-
-  <view class="canvas-area">
-    <canvas type="webgl" id="glcanvas" class="gl-canvas"
-      bindtouchstart="onTouchStart"
-      bindtouchmove="onTouchMove"
-      bindtouchend="onTouchEnd">
-    </canvas>
-
-    <view class="mask loading-mask" wx:if="{{!modelLoaded && !errorMsg}}">
-      <text class="loading-text">加载中...</text>
-    </view>
-
-    <view class="mask error-mask" wx:if="{{errorMsg}}">
-      <text class="error-text">{{errorMsg}}</text>
-      <view class="error-retry" bindtap="onRetry">
-        <text>重试</text>
+  <view class="viewer-header" style="height: calc({{statusBarHeight}}px + 88rpx)">
+    <view class="bar-content" style="top: {{statusBarHeight}}px">
+      <view class="back-btn" bindtap="onBack">
+        <text class="back-icon">‹</text>
+        <text class="back-text">返回</text>
       </view>
-    </view>
-
-    <view class="light-panel" wx:if="{{showLightPanel}}">
-      <view
-        wx:for="{{lightPresets}}" wx:key="*this"
-        class="light-item {{lightPresetIndex === index ? 'active' : ''}}"
-        data-index="{{index}}" bindtap="onSelectLightPreset"
-      >
-        <text>{{item}}</text>
-      </view>
+      <text class="page-title">{{modelName || '3D 查看器'}}</text>
     </view>
   </view>
-
-  <view class="control-bar">
-    <view class="ctrl-btn {{showLightPanel ? 'active' : ''}}" bindtap="onToggleLight">
-      <text>光源</text>
-    </view>
-    <view class="ctrl-btn {{isRotating ? 'active' : ''}}" bindtap="onToggleRotation">
-      <text>{{isRotating ? '暂停' : '旋转'}}</text>
-    </view>
-    <view class="ctrl-btn" bindtap="onRetry">
-      <text>重置</text>
-    </view>
-  </view>
+  <model-viewer id="modelViewer" model-url="{{modelUrl}}" model-name="{{modelName}}" class="viewer-content" />
 </view>

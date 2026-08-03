@@ -1,0 +1,33 @@
+<view class="model-viewer">
+  <canvas
+    wx:if="{{canvasVisible}}"
+    id="glCanvas"
+    type="webgl"
+    class="gl-canvas"
+    bindtouchstart="onTouchStart"
+    bindtouchmove="onTouchMove"
+    bindtouchend="onTouchEnd"
+    bindtouchcancel="onTouchEnd"
+  />
+
+  <view class="model-title" wx:if="{{modelName}}">{{modelName}}</view>
+
+  <view class="overlay" wx:if="{{loading}}">
+    <text class="overlay-text">{{progressText || '模型加载中...'}}</text>
+  </view>
+
+  <view class="overlay" wx:if="{{errorMsg}}">
+    <text class="overlay-error">{{errorMsg}}</text>
+    <view class="retry-btn" bindtap="onRetry">重试</view>
+  </view>
+
+  <view class="debug-panel" wx:if="{{showDebug}}">
+    <text class="debug-line">three r{{revision}} · webgl2: {{webgl2Text}} · dpr: {{dprText}}</text>
+    <text class="debug-line">fps: {{fps}}</text>
+  </view>
+
+  <view class="controls">
+    <view class="ctrl-btn" bindtap="onToggleRotate">{{isRotating ? '⏸ 旋转' : '▶ 旋转'}}</view>
+    <view class="ctrl-btn" bindtap="onToggleDebug">调试</view>
+  </view>
+</view>

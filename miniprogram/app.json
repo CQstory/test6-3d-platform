@@ -23,14 +23,6 @@
     }
   ],
   "preloadRule": {
-    "pages/index/index": {
-      "network": "all",
-      "packages": ["subpackages/modelViewer"]
-    },
-    "pages/model-list/model-list": {
-      "network": "all",
-      "packages": ["subpackages/modelViewer"]
-    },
     "pages/model-detail/model-detail": {
       "network": "all",
       "packages": ["subpackages/modelViewer"]
