@@ -21,5 +21,18 @@
         </view>
       </view>
     </view>
+
+    <!-- 店铺模型列表 -->
+    <view class="store-models">
+      <text class="store-models-title">店铺模型</text>
+      <view class="model-grid">
+        <view wx:for="{{models}}" wx:key="id" class="grid-item">
+          <model-card model="{{item}}" bind:tap="onCardTap" />
+        </view>
+      </view>
+      <view class="empty" wx:if="{{modelsLoaded && models.length === 0}}">
+        <text>该店铺暂无模型</text>
+      </view>
+    </view>
   </view>
 </view>

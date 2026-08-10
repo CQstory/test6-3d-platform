@@ -1,6 +1,7 @@
 {
   "usingComponents": {
-    "top-bar": "/components/top-bar/top-bar"
+    "top-bar": "/components/top-bar/top-bar",
+    "model-card": "/components/model-card/model-card"
   },
   "navigationStyle": "custom"
 }
