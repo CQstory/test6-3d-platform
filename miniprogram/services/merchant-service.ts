@@ -72,12 +72,14 @@ const realApi: IMerchantService = {
     }
   },
   async getAllMerchants() {
-    // 后端已交付 GET /shops（仅返回审核通过店铺）；失败时降级静态 mock
+    // 后端已交付 GET /shops（仅返回审核通过店铺）；失败时返回空列表（页面展示空态）
+    // 不降级静态 mock：mock id 与真实模型 shop_id 不匹配，会导致缩略图等聚合数据错位
     try {
       const res = await api.get<ShopListResponse>('/shops?size=50')
       return res.items.map(mapShop)
-    } catch (_) {
-      return merchantsData
+    } catch (e) {
+      console.error('[merchant-service] getAllMerchants failed:', e)
+      return []
     }
   },
   async getMyShop() {
