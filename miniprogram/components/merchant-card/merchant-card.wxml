@@ -1,0 +1,31 @@
+<view class="m-card" bindtap="onTap">
+  <view class="m-card-row">
+    <image
+      class="m-avatar"
+      src="{{avatarError ? imgFallback : merchant.avatar}}"
+      mode="aspectFill"
+      binderror="onAvatarError"
+    />
+    <view class="m-info">
+      <view class="m-name-line">
+        <text class="m-name">{{merchant.name}}</text>
+        <text class="m-rating">⭐{{merchant.stats.rating}}</text>
+      </view>
+      <text class="m-desc">{{merchant.description}}</text>
+      <text class="m-stats">📦{{merchant.stats.models}} 模型 · 👁️{{merchant.stats.views}}</text>
+    </view>
+  </view>
+  <view class="m-thumbs" wx:if="{{topModels.length > 0}}">
+    <view class="m-thumb-wrap" wx:for="{{topModels}}" wx:key="id">
+      <image
+        class="m-thumb"
+        src="{{thumbErrors[index] ? imgFallback : item.thumbnail}}"
+        mode="aspectFill"
+        lazy-load
+        data-index="{{index}}"
+        catchtap="onThumbTap"
+        binderror="onThumbError"
+      />
+    </view>
+  </view>
+</view>
