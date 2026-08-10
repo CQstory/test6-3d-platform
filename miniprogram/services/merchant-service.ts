@@ -7,21 +7,38 @@ import { merchantsData } from '../data/merchants'
 
 interface ShopResponse {
   id: string; name: string; avatar: string; cover: string; description: string
+  specialties?: string[]
   model_count?: number; total_views?: number
   contact?: { wechat: string; phone: string; email: string }
   stats?: { models: number; views: number; rating: number }
 }
 
+interface ShopListResponse {
+  total: number
+  items: ShopResponse[]
+  page?: number
+  size?: number
+}
+
 /* ========== 字段映射：API(snake_case) → 前端(camelCase) ========== */
+
+/** 取第一个非 null/undefined 的值（兼容写法，等价于 ??，微信编译链 es6:false 不支持 ??） */
+function firstDefined(...vals: any[]): any {
+  for (const v of vals) {
+    if (v != null) return v
+  }
+  return undefined
+}
 
 function mapShop(item: ShopResponse): Merchant {
   return {
     id: item.id, name: item.name, avatar: item.avatar,
     cover: item.cover, description: item.description,
+    specialties: item.specialties || [],
     contact: item.contact || { wechat: '', phone: '', email: '' },
     stats: {
-      models: item.model_count ?? (item.stats && item.stats.models) ?? 0,
-      views: item.total_views ?? (item.stats && item.stats.views) ?? 0,
+      models: firstDefined(item.model_count, item.stats && item.stats.models, 0),
+      views: firstDefined(item.total_views, item.stats && item.stats.views, 0),
       rating: (item.stats && item.stats.rating) || 0,
     },
   }
@@ -55,7 +72,13 @@ const realApi: IMerchantService = {
     }
   },
   async getAllMerchants() {
-    return merchantsData // 后端无全量列表
+    // 后端已交付 GET /shops（仅返回审核通过店铺）；失败时降级静态 mock
+    try {
+      const res = await api.get<ShopListResponse>('/shops?size=50')
+      return res.items.map(mapShop)
+    } catch (_) {
+      return merchantsData
+    }
   },
   async getMyShop() {
     try {
