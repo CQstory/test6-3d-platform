@@ -45,6 +45,8 @@ export interface Merchant {
   avatar: string
   cover: string
   description: string
+  /** 擅长领域标签（筛选 chips 与卡片展示用） */
+  specialties: string[]
   contact: {
     wechat: string
     phone: string
