@@ -5,7 +5,7 @@ import { userService } from '../../services/user-service'
 
 Page({
   data: {
-    activeTab: 'models',
+    activeTab: 'merchants',
     // 搜索模型子页面
     keyword: '',
     activeCategory: 'all',

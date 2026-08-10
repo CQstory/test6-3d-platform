@@ -7,7 +7,7 @@ Page({
   data: {
     role: '',
     isMerchant: false,
-    activeTab: 'models' as 'models' | 'stats',
+    activeTab: 'stats' as 'models' | 'stats',
     shop: {} as Merchant,
     models: [] as Model[],
     // 数据看板

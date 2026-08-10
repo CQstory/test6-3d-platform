@@ -27,13 +27,13 @@
       <!-- 内部 Tab -->
       <view class="inner-tabs">
         <view
-          class="inner-tab {{activeTab === 'models' ? 'active' : ''}}"
-          data-tab="models" bindtap="onTabTap"
-        >模型管理</view>
-        <view
           class="inner-tab {{activeTab === 'stats' ? 'active' : ''}}"
           data-tab="stats" bindtap="onTabTap"
         >数据看板</view>
+        <view
+          class="inner-tab {{activeTab === 'models' ? 'active' : ''}}"
+          data-tab="models" bindtap="onTabTap"
+        >模型管理</view>
       </view>
 
       <!-- 模型管理 Tab -->
