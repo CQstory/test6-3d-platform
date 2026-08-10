@@ -9,7 +9,10 @@
     </view>
   </view>
   <view class="card-body">
-    <text class="card-name">{{model.name}}</text>
+    <view class="card-title-line">
+      <text class="card-name">{{model.name}}</text>
+      <text class="card-price" wx:if="{{priceText}}">{{priceText}}</text>
+    </view>
     <text class="card-desc">{{model.description || '暂无简介'}}</text>
     <view class="card-footer">
       <view class="card-merchant">

@@ -26,6 +26,7 @@ interface ModelItem {
   id: string; name: string; description?: string; thumbnail: string
   model_url?: string; category: CategoryType; tags: string[]
   faces: number; format: string
+  price?: number
   view_count: number; favorite_count: number; is_favorited?: boolean
   click_count?: number
   favorite_added?: number
@@ -49,7 +50,7 @@ function mapModel(item: ModelItem): Model {
     views: item.view_count || 0, favorites: item.favorite_count || 0,
     clicks: item.click_count || 0,
     favoriteAdded: item.favorite_added || 0,
-    price: 0,
+    price: item.price || 0,
     material: '',
     dimensions: '',
     status: 'published',

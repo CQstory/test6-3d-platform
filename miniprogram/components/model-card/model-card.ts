@@ -1,5 +1,5 @@
 import { CATEGORY_MAP, CategoryType } from '../../types/model'
-import { FALLBACK_IMAGE } from '../../utils/util'
+import { FALLBACK_IMAGE, formatPriceText } from '../../utils/util'
 
 Component({
   properties: {
@@ -9,6 +9,7 @@ Component({
     isFavorite: false,
     facesText: '',
     categoryText: '',
+    priceText: '',
     imgFallback: FALLBACK_IMAGE,
     imgError: false,
   },
@@ -19,6 +20,7 @@ Component({
         this.setData({
           facesText: model.faces ? ((model.faces / 1000).toFixed(1) + 'K面') : '',
           categoryText: CATEGORY_MAP[model.category as CategoryType] || '道具',
+          priceText: formatPriceText(model.price || 0, model.priceMatrix || null),
         })
       }
     },
