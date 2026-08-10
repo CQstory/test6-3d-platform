@@ -1,7 +1,7 @@
 {
   "pages": [
-    "pages/model-edit/model-edit",
     "pages/index/index",
+    "pages/model-edit/model-edit",
     "pages/model-list/model-list",
     "pages/merchant-center/merchant-center",
     "pages/profile/profile",
