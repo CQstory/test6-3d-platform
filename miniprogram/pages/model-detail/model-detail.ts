@@ -1,12 +1,14 @@
 import { Model } from '../../types/model'
 import { modelService } from '../../services/model-service'
 import { userService } from '../../services/user-service'
-import { FALLBACK_IMAGE } from '../../utils/util'
+import { FALLBACK_IMAGE, formatPriceText } from '../../utils/util'
 
 Page({
   data: {
     model: {} as Model,
     facesText: '',
+    priceText: '',
+    isFavorite: false,
     imgFallback: FALLBACK_IMAGE,
     imgError: false,
   },
@@ -34,7 +36,9 @@ Page({
         this.setData({
           model,
           facesText: model.faces ? (model.faces / 1000).toFixed(1) + 'K面' : '',
+          priceText: formatPriceText(model.price || 0, model.priceMatrix || null),
         })
+        this.loadFavoriteStatus(id)
         console.log('[model-detail] model loaded:', model.name)
         modelService.recordView(id).catch(() => {})
       } else {
@@ -54,6 +58,47 @@ Page({
     if (m && m.id) {
       this.setData({
         facesText: m.faces ? (m.faces / 1000).toFixed(1) + 'K面' : '',
+      })
+      // 收藏状态可能在其他页面变更，重新读取
+      this.loadFavoriteStatus(m.id)
+    }
+  },
+
+  loadFavoriteStatus(modelId: string) {
+    try {
+      const favorites: string[] = wx.getStorageSync('favorites') || []
+      this.setData({ isFavorite: favorites.includes(modelId) })
+    } catch (_) {
+      this.setData({ isFavorite: false })
+    }
+  },
+
+  onFavorite() {
+    const modelId = this._modelId
+    if (!modelId) return
+    let favorites: string[] = []
+    try { favorites = wx.getStorageSync('favorites') || [] } catch (_) {}
+
+    let newFavorites: string[]
+    let isFavorite: boolean
+    if (favorites.includes(modelId)) {
+      newFavorites = favorites.filter(id => id !== modelId)
+      isFavorite = false
+      wx.showToast({ title: '已取消收藏', icon: 'none' })
+    } else {
+      newFavorites = [...favorites, modelId]
+      isFavorite = true
+      wx.showToast({ title: '收藏成功', icon: 'success' })
+    }
+    try { wx.setStorageSync('favorites', newFavorites) } catch (_) {}
+    this.setData({ isFavorite })
+  },
+
+  onGoMerchant() {
+    const m = this.data.model as Model
+    if (m && m.merchantId) {
+      wx.navigateTo({
+        url: '/pages/store-front/store-front?id=' + m.merchantId,
       })
     }
   },
