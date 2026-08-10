@@ -23,7 +23,7 @@
 
 **Steps:**
 
-- [ ] **Step 1: 修改 Merchant 接口**
+- [x] **Step 1: 修改 Merchant 接口**
 
 在 `miniprogram/types/model.ts` 的 `Merchant` 接口 `description: string` 之后新增：
 
@@ -50,7 +50,7 @@ export interface Merchant {
 }
 ```
 
-- [ ] **Step 2: 补充 4 家 mock 商家的 specialties**
+- [x] **Step 2: 补充 4 家 mock 商家的 specialties**
 
 在 `miniprogram/data/merchants.ts` 中，每家商家 `description` 字段之后新增一行（此步后 `tsc` 会报错直到全部补齐，属预期）：
 
@@ -65,12 +65,12 @@ specialties: ['道具场景', '沙盘'],
 specialties: ['东方神兽', '雕塑'],
 ```
 
-- [ ] **Step 3: 验证类型**
+- [x] **Step 3: 验证类型**
 
 Run: `npx tsc --noEmit`（工作目录 `d:\Code\benchuang\test6`）
 Expected: 可能仍有报错（merchant-service.ts 的 mapShop/mock 构造缺 specialties），Task 2 修复；本任务涉及的两个文件不应出现新错误。
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add miniprogram/types/model.ts miniprogram/data/merchants.ts
@@ -89,7 +89,7 @@ git commit -m "feat(types): Merchant 新增 specialties 擅长领域字段并补
 
 **Steps:**
 
-- [ ] **Step 1: ShopResponse 增加可选字段**
+- [x] **Step 1: ShopResponse 增加可选字段**
 
 ```ts
 interface ShopResponse {
@@ -101,7 +101,7 @@ interface ShopResponse {
 }
 ```
 
-- [ ] **Step 2: mapShop 映射 specialties（缺省 []）**
+- [x] **Step 2: mapShop 映射 specialties（缺省 []）**
 
 ```ts
 function mapShop(item: ShopResponse): Merchant {
@@ -121,12 +121,12 @@ function mapShop(item: ShopResponse): Merchant {
 
 注意：mock 分支的 `getMockShop()` 基于 `merchantsData[0]` 展开、`updateShop` 合并 `current`，均天然携带 specialties，无需额外改动。
 
-- [ ] **Step 3: 验证类型**
+- [x] **Step 3: 验证类型**
 
 Run: `npx tsc --noEmit`
 Expected: exit code 0（Task 1 引入的类型缺口在此补齐）
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add miniprogram/services/merchant-service.ts
@@ -149,7 +149,7 @@ git commit -m "feat(service): merchant-service 映射 specialties 字段"
 
 **Steps:**
 
-- [ ] **Step 1: merchant-card.json**
+- [x] **Step 1: merchant-card.json**
 
 ```json
 {
@@ -158,7 +158,7 @@ git commit -m "feat(service): merchant-service 映射 specialties 字段"
 }
 ```
 
-- [ ] **Step 2: merchant-card.ts**
+- [x] **Step 2: merchant-card.ts**
 
 ```ts
 import { FALLBACK_IMAGE } from '../../utils/util'
@@ -199,7 +199,7 @@ Component({
 })
 ```
 
-- [ ] **Step 3: merchant-card.wxml**
+- [x] **Step 3: merchant-card.wxml**
 
 ```xml
 <view class="m-card" bindtap="onTap">
@@ -235,7 +235,7 @@ Component({
 </view>
 ```
 
-- [ ] **Step 4: merchant-card.wxss**
+- [x] **Step 4: merchant-card.wxss**
 
 ```css
 .m-card {
@@ -260,12 +260,12 @@ Component({
 .m-thumb { width: 100%; height: 100%; }
 ```
 
-- [ ] **Step 5: 验证类型**
+- [x] **Step 5: 验证类型**
 
 Run: `npx tsc --noEmit`
 Expected: exit code 0
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add miniprogram/components/merchant-card
@@ -284,7 +284,7 @@ git commit -m "feat(components): 新增 merchant-card 商家卡片组件（列�
 
 **Steps:**
 
-- [ ] **Step 1: tab-bar.ts 修改 browse 项**
+- [x] **Step 1: tab-bar.ts 修改 browse 项**
 
 将 `_buildTabs` 中的：
 
@@ -298,7 +298,7 @@ git commit -m "feat(components): 新增 merchant-card 商家卡片组件（列�
 { key: 'browse', label: '搜索', icon: '🔍' },
 ```
 
-- [ ] **Step 2: app.json 修改 text**
+- [x] **Step 2: app.json 修改 text**
 
 将 `tabBar.list` 中的：
 
@@ -312,7 +312,7 @@ git commit -m "feat(components): 新增 merchant-card 商家卡片组件（列�
 { "pagePath": "pages/model-list/model-list", "text": "搜索" },
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add miniprogram/components/tab-bar/tab-bar.ts miniprogram/app.json
@@ -335,7 +335,7 @@ git commit -m "feat(tab-bar): 模型库 Tab 更名搜索"
 
 **Steps:**
 
-- [ ] **Step 1: model-list.json 注册组件**
+- [x] **Step 1: model-list.json 注册组件**
 
 ```json
 {
@@ -349,7 +349,7 @@ git commit -m "feat(tab-bar): 模型库 Tab 更名搜索"
 }
 ```
 
-- [ ] **Step 2: model-list.ts 整体重写**
+- [x] **Step 2: model-list.ts 整体重写**
 
 ```ts
 import { Merchant, Model } from '../../types/model'
@@ -501,7 +501,7 @@ Page({
 })
 ```
 
-- [ ] **Step 3: model-list.wxml 整体重写**
+- [x] **Step 3: model-list.wxml 整体重写**
 
 ```xml
 <view class="page">
@@ -587,7 +587,7 @@ Page({
 </view>
 ```
 
-- [ ] **Step 4: model-list.wxss 追加样式**
+- [x] **Step 4: model-list.wxss 追加样式**
 
 在文件末尾追加（inner-tabs 样式复制自 `merchant-center.wxss`，`margin` 置 0 因页面 `.page-content` 已有左右 padding）：
 
@@ -617,12 +617,12 @@ Page({
 .merchant-list { margin-top: 8rpx; }
 ```
 
-- [ ] **Step 5: 验证类型**
+- [x] **Step 5: 验证类型**
 
 Run: `npx tsc --noEmit`
 Expected: exit code 0
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add miniprogram/pages/model-list
@@ -654,7 +654,7 @@ git commit -m "feat(search): model-list 升级为搜索页容器（商家/模型
 | 8 | 两子页面状态 | 各自输入/筛选状态互不干扰，切换后保留 |
 | 9 | 商家角色登录 | 第三个 Tab 仍显示「商家 🏪」，进入 merchant-center 正常 |
 
-- [ ] **Step 2: 确认后端报告已产出**
+- [x] **Step 2: 确认后端报告已产出**
 
 核对 `docs/reports/2026-08-10-merchant-specialties-backend-report.md` 已存在且包含 specialties 字段契约与店铺列表 API 需求。
 
