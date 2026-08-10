@@ -25,7 +25,7 @@ Component({
       this.setData({
         tabs: [
           { key: 'home', label: '主页', icon: '🏠' },
-          { key: 'browse', label: '模型库', icon: '📦' },
+          { key: 'browse', label: '搜索', icon: '🔍' },
           {
             key: 'merchant',
             label: isMerchant ? '商家' : '消息',

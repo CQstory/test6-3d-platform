@@ -32,7 +32,7 @@
     "custom": true,
     "list": [
       { "pagePath": "pages/index/index", "text": "主页" },
-      { "pagePath": "pages/model-list/model-list", "text": "模型库" },
+      { "pagePath": "pages/model-list/model-list", "text": "搜索" },
       { "pagePath": "pages/merchant-center/merchant-center", "text": "消息" },
       { "pagePath": "pages/profile/profile", "text": "我的" }
     ]
