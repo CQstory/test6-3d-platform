@@ -1,28 +1,80 @@
 <view class="page">
-  <top-bar title="模型库" />
+  <top-bar title="搜索" />
   <view class="page-content">
-    <view class="search-bar">
-      <input class="search-input" placeholder="搜索模型..." value="{{keyword}}" bindinput="onSearchInput" />
+    <!-- 内部 Tab：复用 merchant-center inner-tabs 样式 -->
+    <view class="inner-tabs">
+      <view
+        class="inner-tab {{activeTab === 'merchants' ? 'active' : ''}}"
+        data-tab="merchants" bindtap="onInnerTabTap"
+      >搜索商家</view>
+      <view
+        class="inner-tab {{activeTab === 'models' ? 'active' : ''}}"
+        data-tab="models" bindtap="onInnerTabTap"
+      >搜索模型</view>
     </view>
-    <scroll-view class="category-scroll" scroll-x show-scrollbar="{{false}}">
-      <view class="category-list">
-        <view
-          wx:for="{{categories}}" wx:key="key"
-          class="cat-item {{activeCategory === item.key ? 'active' : ''}}"
-          data-key="{{item.key}}" bindtap="onCategoryTap"
-        >
-          <text>{{item.label}}</text>
+
+    <!-- 搜索商家子页面 -->
+    <block wx:if="{{activeTab === 'merchants'}}">
+      <view class="search-bar">
+        <input class="search-input" placeholder="店铺名称 / 简介关键词" value="{{merchantKeyword}}" bindinput="onMerchantSearchInput" />
+      </view>
+      <scroll-view class="category-scroll" scroll-x show-scrollbar="{{false}}">
+        <view class="category-list">
+          <view
+            class="cat-item {{activeSpecialty === 'all' ? 'active' : ''}}"
+            data-key="all" bindtap="onSpecialtyTap"
+          >
+            <text>全部</text>
+          </view>
+          <view
+            wx:for="{{specialties}}" wx:key="*this"
+            class="cat-item {{activeSpecialty === item ? 'active' : ''}}"
+            data-key="{{item}}" bindtap="onSpecialtyTap"
+          >
+            <text>{{item}}</text>
+          </view>
+        </view>
+      </scroll-view>
+      <view class="merchant-list">
+        <merchant-card
+          wx:for="{{displayMerchants}}" wx:key="id"
+          merchant="{{item}}"
+          topModels="{{top3ModelsMap[item.id]}}"
+          bind:tap="onMerchantTap"
+          bind:modeltap="onThumbModelTap"
+        />
+      </view>
+      <view class="empty" wx:if="{{displayMerchants.length === 0}}">
+        <text>未找到相关商家</text>
+      </view>
+    </block>
+
+    <!-- 搜索模型子页面（原 model-list 内容） -->
+    <block wx:if="{{activeTab === 'models'}}">
+      <view class="search-bar">
+        <input class="search-input" placeholder="搜索模型..." value="{{keyword}}" bindinput="onSearchInput" />
+      </view>
+      <scroll-view class="category-scroll" scroll-x show-scrollbar="{{false}}">
+        <view class="category-list">
+          <view
+            wx:for="{{categories}}" wx:key="key"
+            class="cat-item {{activeCategory === item.key ? 'active' : ''}}"
+            data-key="{{item.key}}" bindtap="onCategoryTap"
+          >
+            <text>{{item.label}}</text>
+          </view>
+        </view>
+      </scroll-view>
+      <view class="model-grid">
+        <view wx:for="{{displayModels}}" wx:key="id" class="grid-item">
+          <model-card model="{{item}}" bind:tap="onCardTap" />
         </view>
       </view>
-    </scroll-view>
-    <view class="model-grid">
-      <view wx:for="{{displayModels}}" wx:key="id" class="grid-item">
-        <model-card model="{{item}}" bind:tap="onCardTap" />
+      <view class="empty" wx:if="{{displayModels.length === 0}}">
+        <text>暂无模型</text>
       </view>
-    </view>
-    <view class="empty" wx:if="{{displayModels.length === 0}}">
-      <text>暂无模型</text>
-    </view>
+    </block>
+
     <view class="bottom-spacer"></view>
   </view>
   <tab-bar active="browse" role="{{role}}" />

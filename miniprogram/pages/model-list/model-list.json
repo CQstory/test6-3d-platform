@@ -2,7 +2,8 @@
   "usingComponents": {
     "top-bar": "/components/top-bar/top-bar",
     "tab-bar": "/components/tab-bar/tab-bar",
-    "model-card": "/components/model-card/model-card"
+    "model-card": "/components/model-card/model-card",
+    "merchant-card": "/components/merchant-card/merchant-card"
   },
   "navigationStyle": "custom"
 }
