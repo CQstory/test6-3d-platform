@@ -68,4 +68,9 @@ Page({
   onGoMerchant() {
     wx.switchTab({ url: '/pages/merchant-center/merchant-center' })
   },
+  onGoViewer() {
+    wx.navigateTo({
+      url: '/subpackages/modelViewer/pages/model-pick/model-pick',
+    })
+  },
 })

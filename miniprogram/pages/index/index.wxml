@@ -63,10 +63,10 @@
     </view>
 
     <view class="section">
-      <view class="cta-banner" bindtap="onGoMerchant">
+      <view class="cta-banner" bindtap="onGoViewer">
         <view class="cta-text">
           <text class="cta-title">拥有自己的3D模型？</text>
-          <text class="cta-subtitle">立即入驻，获得专属展示位，让更多人看见你的作品</text>
+          <text class="cta-subtitle">点击选择文件，即刻渲染预览效果</text>
         </view>
         <view class="cta-arrow">›</view>
       </view>
