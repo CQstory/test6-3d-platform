@@ -63,8 +63,7 @@ Page({
       url:
         '/subpackages/modelViewer/pages/model-render/model-render' +
         '?modelUrl=' + encodeURIComponent(this.data.modelUrl) +
-        '&name=' + encodeURIComponent(this.data.fileName) +
-        '&size=' + (this.data.fileSizeText || ''),
+        '&name=' + encodeURIComponent(this.data.fileName),
     })
   },
 

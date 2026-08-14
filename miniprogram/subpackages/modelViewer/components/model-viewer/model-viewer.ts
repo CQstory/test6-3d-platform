@@ -294,28 +294,28 @@ Component({
       this.data._loadRetries = this.data._loadRetries || 0
       console.log('[model-viewer] loading model:', url, '(attempt ' + (this.data._loadRetries + 1) + ')')
 
-      // 超时保护（本地读取极快，基本不触发）
-      if (this.data._loadTimeoutId) clearTimeout(this.data._loadTimeoutId)
-      this.data._loadTimeoutId = setTimeout(() => {
-        this.data._loadTimeoutId = null
-        this._handleLoadError(new Error('加载超时，请检查网络连接'))
-      }, LOAD_TIMEOUT)
-
-      // 本地/聊天记录临时文件（wxfile://）→ FileSystemManager.readFile 读 ArrayBuffer
-      if (url.indexOf('wxfile://') === 0) {
+      // 本地/聊天记录临时文件（真机 wxfile://，开发者工具 http://tmp/）→ FileSystemManager.readFile 读 ArrayBuffer
+      // 本地读取不走网络超时（无网络语义），失败由 _handleLoadError 终态展示
+      if (url.indexOf('wxfile://') === 0 || url.indexOf('http://tmp/') === 0) {
         wx.getFileSystemManager().readFile({
           filePath: url,
           success: (res: any) => {
             this._parseAndMount(res && res.data)
           },
           fail: (err: any) => {
-            this._handleLoadError(new Error(err && err.errMsg ? err.errMsg : '本地文件读取失败'), false)
+            this._handleLoadError(new Error('本地文件读取失败: ' + (err && err.errMsg ? err.errMsg : '未知原因')), false)
           },
         })
         return
       }
 
-      // 远程 URL → wx.request（原逻辑，成功回调改为调用 _parseAndMount）
+      // 远程 URL：超时保护 + wx.request（原逻辑，成功回调改为调用 _parseAndMount）
+      if (this.data._loadTimeoutId) clearTimeout(this.data._loadTimeoutId)
+      this.data._loadTimeoutId = setTimeout(() => {
+        this.data._loadTimeoutId = null
+        this._handleLoadError(new Error('加载超时，请检查网络连接'))
+      }, LOAD_TIMEOUT)
+
       wx.request({
         url,
         method: 'GET',
@@ -436,8 +436,14 @@ Component({
           this._loadModel()
         }, delay)
       } else {
+        // 终止态：清理挂起的超时定时器（防本地失败后 30s 幽灵重试）
+        if (this.data._loadTimeoutId) {
+          clearTimeout(this.data._loadTimeoutId)
+          this.data._loadTimeoutId = null
+        }
         let friendly = '模型加载失败'
         if (msg.indexOf('timeout') >= 0 || msg.indexOf('超时') >= 0) friendly = '加载超时，请检查网络后重试'
+        else if (msg.indexOf('本地') >= 0) friendly = '本地文件读取失败，请返回重新选择文件'
         else if (msg.indexOf('fail') >= 0 || msg.indexOf('request') >= 0 || msg.indexOf('网络') >= 0) friendly = '网络请求失败，请检查域名配置或网络连接'
         else if (msg.indexOf('parse') >= 0 || msg.indexOf('解析') >= 0) friendly = '模型格式解析失败'
         this.setData({ loading: false, errorMsg: friendly + '\n(' + msg + ')' })

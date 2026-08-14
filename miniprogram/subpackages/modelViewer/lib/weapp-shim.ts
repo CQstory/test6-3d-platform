@@ -177,15 +177,22 @@ export function createScopedShim(canvas: any): ScopedShim {
 
   // ---- 图片类：桥接 canvas.createImage()（真机纹理加载核心 API） ----
   class ScopedImage {
-    onload: (() => void) | null = null
-    onerror: ((e?: any) => void) | null = null
-    width = 0
-    height = 0
-    complete = false
+    onload: (() => void) | null
+    onerror: ((e?: any) => void) | null
+    width: number
+    height: number
+    complete: boolean
     private _img: any
-    private _listeners: Record<string, Array<(e?: any) => void>> = {}
+    private _listeners: Record<string, Array<(e?: any) => void>>
 
     constructor() {
+      // 字段在 constructor 内赋值：微信编译链（es6:false）不支持 class fields 语法（onload = null）
+      this.onload = null
+      this.onerror = null
+      this.width = 0
+      this.height = 0
+      this.complete = false
+      this._listeners = {}
       this._img = canvas.createImage()
       const onLoadCb = () => {
         this.width = this._img.width || 0

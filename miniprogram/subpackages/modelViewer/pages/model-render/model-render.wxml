@@ -9,4 +9,9 @@
     </view>
   </view>
   <model-viewer id="modelViewer" model-url="{{modelUrl}}" model-name="{{modelName}}" class="viewer-content" />
+
+  <!-- 空地址兑底：modelUrl 为空时组件静默待命，页面层展示提示 -->
+  <view class="empty-mask" wx:if="{{!modelUrl}}">
+    <text class="empty-text">未获取到模型文件地址</text>
+  </view>
 </view>
