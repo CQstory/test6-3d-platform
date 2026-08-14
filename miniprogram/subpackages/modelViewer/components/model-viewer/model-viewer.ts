@@ -330,16 +330,43 @@ Component({
     },
 
     /** 公共解析挂载：GLTFLoader.parse + 模型挂载（远程/本地共用） */
-    _parseAndMount(data: ArrayBuffer) {
-      if (!data || !(data instanceof ArrayBuffer)) {
-        this._handleLoadError(new Error('模型数据格式错误'))
+    _parseAndMount(data: any) {
+      // 数据归一化：兼容 ArrayBuffer / Uint8Array 等视图 / 开发者工具 readFile 的 polyfill 对象
+      // （开发者工具中 readFile 返回对象 instanceof ArrayBuffer 为 false，见微信社区置顶帖）
+      let buf: ArrayBuffer | null = null
+      if (data instanceof ArrayBuffer) {
+        buf = data
+      } else if (
+        data &&
+        data.buffer instanceof ArrayBuffer &&
+        typeof data.byteLength === 'number' &&
+        typeof data.byteOffset === 'number'
+      ) {
+        // TypedArray / DataView：截取视图区间为独立 ArrayBuffer
+        buf = data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength)
+      } else if (data && typeof data.byteLength === 'number' && data.byteLength > 0) {
+        // 类 ArrayBuffer 字节对象（工具 polyfill / 跨 realm）：按数字下标逐字节拷贝
+        const bytes = new Uint8Array(data.byteLength)
+        let ok = true
+        for (let i = 0; i < data.byteLength; i++) {
+          const v = data[i]
+          if (typeof v !== 'number') {
+            ok = false
+            break
+          }
+          bytes[i] = v
+        }
+        if (ok) buf = bytes.buffer
+      }
+      if (!buf) {
+        this._handleLoadError(new Error('模型数据格式错误'), false)
         return
       }
       try {
         const THREE = this.data._scoped!.THREE
         const loader = createGLTFLoader(THREE)
         loader.parse(
-          data,
+          buf,
           '',
           (gltf: any) => {
             if (this.data._loadTimeoutId) {
@@ -348,17 +375,17 @@ Component({
             }
             const model = (gltf && (gltf.scene || (gltf.scenes && gltf.scenes[0]))) || null
             if (!model) {
-              this._handleLoadError(new Error('模型场景为空'))
+              this._handleLoadError(new Error('模型场景为空'), false)
               return
             }
             this._onModelLoaded(model)
           },
           (err: any) => {
-            this._handleLoadError(err || new Error('模型解析失败'))
+            this._handleLoadError(err || new Error('模型解析失败'), false)
           }
         )
       } catch (e: any) {
-        this._handleLoadError(e)
+        this._handleLoadError(e, false)
       }
     },
 
