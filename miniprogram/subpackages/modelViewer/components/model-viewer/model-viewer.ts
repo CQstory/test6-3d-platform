@@ -479,18 +479,21 @@ Component({
         }
         // 复刻 GLTFLoader L356 的 asset 检查求值（与报错条件完全一致）
         const wouldFail = !(json && json.asset) || (version ? version[0] < 2 : false)
-        console.log('[model-viewer] GLB diag:', {
-          magic,
-          containerVersion,
-          totalLen,
-          fileLen: buf.byteLength,
-          chunks,
-          asset: json && json.asset,
-          version0: version && version[0],
-          wouldFail,
-          allAscii,
-          contentHead: content.slice(0, 100),
-        })
+        // 字符串输出（避免控制台对象折叠看不到字段）
+        console.log('[model-viewer] GLB diag chunks:', JSON.stringify(chunks))
+        console.log('[model-viewer] GLB diag asset:', JSON.stringify(json && json.asset))
+        console.log(
+          '[model-viewer] GLB diag check:',
+          'version=' + JSON.stringify(version),
+          'version0=' + String(version && version[0]),
+          'wouldFail=' + wouldFail,
+          'allAscii=' + allAscii,
+          'magic=' + magic,
+          'containerVersion=' + containerVersion,
+          'totalLen=' + totalLen,
+          'fileLen=' + buf.byteLength
+        )
+        console.log('[model-viewer] GLB diag contentHead:', content.slice(0, 120))
       } catch (e: any) {
         console.warn('[model-viewer] GLB diag failed:', e && e.message)
       }
