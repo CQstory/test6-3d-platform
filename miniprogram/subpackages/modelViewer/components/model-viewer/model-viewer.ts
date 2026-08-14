@@ -407,6 +407,7 @@ Component({
       try {
         const THREE = this.data._scoped!.THREE
         const loader = createGLTFLoader(THREE)
+        console.log('[model-viewer] loader ctor:', loader && loader.constructor && loader.constructor.name)
         loader.parse(
           buf,
           '',
@@ -494,6 +495,28 @@ Component({
           'fileLen=' + buf.byteLength
         )
         console.log('[model-viewer] GLB diag contentHead:', content.slice(0, 120))
+
+        // 对照实验：绕过 GLB 二进制分支，直接用 JSON 对象 parse（复刻 GLTFLoader L350 else 分支）
+        // 若 asset 检查通过（不报 Unsupported asset）→ 问题在 GLB 二进制分支/运行文件；
+        // 若同样报 Unsupported asset → GLTFLoader 检查逻辑与磁盘文件不一致（缓存/损坏）
+        if (json) {
+          try {
+            const THREE = this.data._scoped!.THREE
+            const loader = createGLTFLoader(THREE)
+            loader.parse(
+              json,
+              '',
+              () => {
+                console.log('[model-viewer] parse-json: SUCCESS')
+              },
+              (e2: any) => {
+                console.log('[model-viewer] parse-json: FAIL:', e2 && e2.message)
+              }
+            )
+          } catch (e2: any) {
+            console.log('[model-viewer] parse-json: THROW:', e2 && e2.message)
+          }
+        }
       } catch (e: any) {
         console.warn('[model-viewer] GLB diag failed:', e && e.message)
       }
