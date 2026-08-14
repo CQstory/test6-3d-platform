@@ -1,0 +1,12 @@
+<view class="viewer-page">
+  <view class="viewer-header" style="height: calc({{statusBarHeight}}px + 88rpx)">
+    <view class="bar-content" style="top: {{statusBarHeight}}px">
+      <view class="back-btn" bindtap="onBack">
+        <text class="back-icon">‹</text>
+        <text class="back-text">返回</text>
+      </view>
+      <text class="page-title">{{modelName || '3D 查看器'}}</text>
+    </view>
+  </view>
+  <model-viewer id="modelViewer" model-url="{{modelUrl}}" model-name="{{modelName}}" class="viewer-content" />
+</view>

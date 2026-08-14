@@ -1,0 +1,60 @@
+page {
+  background: #1a1a2e;
+}
+
+.viewer-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #1a1a2e;
+  overflow: hidden;
+}
+
+.viewer-header {
+  position: relative;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 20;
+  flex-shrink: 0;
+}
+
+.bar-content {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 88rpx;
+  display: flex;
+  align-items: center;
+  padding: 0 24rpx;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  padding: 8rpx 20rpx 8rpx 0;
+}
+
+.back-icon {
+  font-size: 52rpx;
+  color: #fff;
+  line-height: 1;
+  margin-right: 6rpx;
+}
+
+.back-text {
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.page-title {
+  flex: 1;
+  text-align: center;
+  font-size: 32rpx;
+  font-weight: 500;
+  color: #fff;
+  padding-right: 120rpx;
+}
+
+.viewer-content {
+  flex: 1;
+  min-height: 0;
+}
