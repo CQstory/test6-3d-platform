@@ -331,7 +331,7 @@ Component({
 
     /** 公共解析挂载：GLTFLoader.parse + 模型挂载（远程/本地共用） */
     _parseAndMount(data: any) {
-      // 数据归一化：兼容 ArrayBuffer / Uint8Array 等视图 / 开发者工具 readFile 的 polyfill 对象
+      // 数据归一化：兼容 ArrayBuffer / Uint8Array 等视图 / 开发者工具 readFile 的桥接对象
       // （开发者工具中 readFile 返回对象 instanceof ArrayBuffer 为 false，见微信社区置顶帖）
       let buf: ArrayBuffer | null = null
       if (data instanceof ArrayBuffer) {
@@ -345,20 +345,52 @@ Component({
         // TypedArray / DataView：截取视图区间为独立 ArrayBuffer
         buf = data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength)
       } else if (data && typeof data.byteLength === 'number' && data.byteLength > 0) {
-        // 类 ArrayBuffer 字节对象（工具 polyfill / 跨 realm）：按数字下标逐字节拷贝
-        const bytes = new Uint8Array(data.byteLength)
-        let ok = true
-        for (let i = 0; i < data.byteLength; i++) {
-          const v = data[i]
-          if (typeof v !== 'number') {
-            ok = false
-            break
-          }
-          bytes[i] = v
+        // 类 ArrayBuffer 字节对象（工具桥接 / 跨 realm），按优先级尝试多种还原方式
+        // ① new Uint8Array：对象内部为真 ArrayBuffer 时可直接取视图
+        let bytes: Uint8Array | null = null
+        try {
+          const v = new Uint8Array(data as any)
+          if (v.length > 0) bytes = v
+        } catch (_e) {
+          bytes = null
         }
-        if (ok) buf = bytes.buffer
+        // ② ArrayBuffer.prototype.slice.call：桥接对象内部为真 ArrayBuffer 时返回真 ArrayBuffer
+        if (!bytes) {
+          try {
+            const ab = ArrayBuffer.prototype.slice.call(data, 0) as ArrayBuffer
+            if (ab && ab.byteLength > 0) buf = ab
+          } catch (_e) {
+            buf = null
+          }
+        }
+        if (!buf && bytes) buf = bytes.buffer as ArrayBuffer
+        // ③ 数字下标逐字节拷贝（类 Uint8Array 形态）
+        if (!buf) {
+          bytes = new Uint8Array(data.byteLength)
+          let ok = true
+          for (let i = 0; i < data.byteLength; i++) {
+            const v = data[i]
+            if (typeof v !== 'number') {
+              ok = false
+              break
+            }
+            bytes[i] = v
+          }
+          if (ok) buf = bytes.buffer as ArrayBuffer
+        }
       }
       if (!buf) {
+        // 诊断：输出对象形态（构造器名/属性/能力），定位工具桥接对象结构后针对性适配
+        console.error('[model-viewer] parse data shape:', {
+          ctor: data && data.constructor && data.constructor.name,
+          byteLength: data && data.byteLength,
+          keys: data ? Object.keys(data).slice(0, 20).join(',') : 'n/a',
+          item0: data && typeof data[0] !== 'undefined' ? data[0] : '<none>',
+          slice: data && typeof data.slice,
+          buffer: data && data.buffer && data.buffer.constructor && data.buffer.constructor.name,
+          isArrayBuffer: !!(data && data instanceof ArrayBuffer),
+          isView: !!(data && ArrayBuffer.isView && ArrayBuffer.isView(data)),
+        })
         this._handleLoadError(new Error('模型数据格式错误'), false)
         return
       }
