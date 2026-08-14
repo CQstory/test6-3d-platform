@@ -423,11 +423,39 @@ Component({
             this._onModelLoaded(model)
           },
           (err: any) => {
+            // 解析失败时诊断：解析 GLB 内嵌 JSON 的 asset 字段，定位版本/格式问题
+            this._diagnoseGlb(buf)
             this._handleLoadError(err || new Error('模型解析失败'), false)
           }
         )
       } catch (e: any) {
         this._handleLoadError(e, false)
+      }
+    },
+
+    /** 诊断：解析 GLB 头部与内嵌 JSON 的 asset 字段（定位版本不兼容问题） */
+    _diagnoseGlb(buf: ArrayBuffer) {
+      try {
+        if (buf.byteLength < 20) return
+        const view = new DataView(buf)
+        const magic = String.fromCharCode(view.getUint8(0), view.getUint8(1), view.getUint8(2), view.getUint8(3))
+        const containerVersion = view.getUint32(4, true)
+        const jsonLen = view.getUint32(12, true)
+        if (jsonLen > 5 * 1024 * 1024 || 20 + jsonLen > buf.byteLength) return
+        const jsonChunk = new Uint8Array(buf, 20, jsonLen)
+        let json: any = null
+        try {
+          json = JSON.parse(new TextDecoder().decode(jsonChunk))
+        } catch (_e) {
+          json = null
+        }
+        console.log('[model-viewer] GLB diag:', {
+          magic,
+          containerVersion,
+          asset: json && json.asset,
+        })
+      } catch (e: any) {
+        console.warn('[model-viewer] GLB diag failed:', e && e.message)
       }
     },
 
