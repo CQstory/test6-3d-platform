@@ -282,7 +282,8 @@ Component({
     _loadModel() {
       const url = this.properties.modelUrl
       if (!url) {
-        this.setData({ errorMsg: '缺少模型地址 modelUrl', loading: false })
+        // 空路径：静默待命（本地渲染页未选择文件时由页面空态遮盖，不报错）
+        this.setData({ loading: false, errorMsg: '' })
         return
       }
       if (!this.data._scoped) {
@@ -293,53 +294,72 @@ Component({
       this.data._loadRetries = this.data._loadRetries || 0
       console.log('[model-viewer] loading model:', url, '(attempt ' + (this.data._loadRetries + 1) + ')')
 
-      // 超时保护
+      // 超时保护（本地读取极快，基本不触发）
       if (this.data._loadTimeoutId) clearTimeout(this.data._loadTimeoutId)
       this.data._loadTimeoutId = setTimeout(() => {
         this.data._loadTimeoutId = null
         this._handleLoadError(new Error('加载超时，请检查网络连接'))
       }, LOAD_TIMEOUT)
 
+      // 本地/聊天记录临时文件（wxfile://）→ FileSystemManager.readFile 读 ArrayBuffer
+      if (url.indexOf('wxfile://') === 0) {
+        wx.getFileSystemManager().readFile({
+          filePath: url,
+          success: (res: any) => {
+            this._parseAndMount(res && res.data)
+          },
+          fail: (err: any) => {
+            this._handleLoadError(new Error(err && err.errMsg ? err.errMsg : '本地文件读取失败'), false)
+          },
+        })
+        return
+      }
+
+      // 远程 URL → wx.request（原逻辑，成功回调改为调用 _parseAndMount）
       wx.request({
         url,
         method: 'GET',
         responseType: 'arraybuffer',
         success: (res: any) => {
-          const data = res && res.data
-          if (!data || !(data instanceof ArrayBuffer)) {
-            this._handleLoadError(new Error('模型数据格式错误'))
-            return
-          }
-          try {
-            const THREE = this.data._scoped!.THREE
-            const loader = createGLTFLoader(THREE)
-            loader.parse(
-              data,
-              '',
-              (gltf: any) => {
-                if (this.data._loadTimeoutId) {
-                  clearTimeout(this.data._loadTimeoutId)
-                  this.data._loadTimeoutId = null
-                }
-                const model = (gltf && (gltf.scene || (gltf.scenes && gltf.scenes[0]))) || null
-                if (!model) {
-                  this._handleLoadError(new Error('模型场景为空'))
-                  return
-                }
-                this._onModelLoaded(model)
-              },
-              (err: any) => {
-                this._handleLoadError(err || new Error('模型解析失败'))
-              }
-            )
-          } catch (e: any) {
-            this._handleLoadError(e)
-          }
+          this._parseAndMount(res && res.data)
         },
         fail: (err: any) => {
           this._handleLoadError(new Error(err && err.errMsg ? err.errMsg : '网络请求失败'))
         },
       })
+    },
+
+    /** 公共解析挂载：GLTFLoader.parse + 模型挂载（远程/本地共用） */
+    _parseAndMount(data: ArrayBuffer) {
+      if (!data || !(data instanceof ArrayBuffer)) {
+        this._handleLoadError(new Error('模型数据格式错误'))
+        return
+      }
+      try {
+        const THREE = this.data._scoped!.THREE
+        const loader = createGLTFLoader(THREE)
+        loader.parse(
+          data,
+          '',
+          (gltf: any) => {
+            if (this.data._loadTimeoutId) {
+              clearTimeout(this.data._loadTimeoutId)
+              this.data._loadTimeoutId = null
+            }
+            const model = (gltf && (gltf.scene || (gltf.scenes && gltf.scenes[0]))) || null
+            if (!model) {
+              this._handleLoadError(new Error('模型场景为空'))
+              return
+            }
+            this._onModelLoaded(model)
+          },
+          (err: any) => {
+            this._handleLoadError(err || new Error('模型解析失败'))
+          }
+        )
+      } catch (e: any) {
+        this._handleLoadError(e)
+      }
     },
 
     _onModelLoaded(model: any) {
@@ -403,12 +423,13 @@ Component({
       })
     },
 
-    _handleLoadError(err: any) {
+    _handleLoadError(err: any, retry = true) {
       this.data._loadRetries = (this.data._loadRetries || 0) + 1
       const msg = err && err.message ? err.message : String(err)
       console.error('[model-viewer] load failed (attempt ' + this.data._loadRetries + '):', msg)
 
-      if (this.data._loadRetries <= MAX_LOAD_RETRIES) {
+      // 本地文件读取失败不自动重试（retry: false），由用户手动点「重试」
+      if (retry && this.data._loadRetries <= MAX_LOAD_RETRIES) {
         const delay = LOAD_RETRY_DELAY * this.data._loadRetries
         this.setData({ progressText: '加载失败，重试中 (' + this.data._loadRetries + '/' + MAX_LOAD_RETRIES + ')...' })
         setTimeout(() => {
