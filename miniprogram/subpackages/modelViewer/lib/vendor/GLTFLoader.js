@@ -355,6 +355,12 @@ class GLTFLoader extends Loader {
 
 		if ( json.asset === undefined || json.asset.version[ 0 ] < 2 ) {
 
+			// [debug] 打印 GLTFLoader 内部拿到的 json 的 asset 字段与检查求值（定位 Unsupported asset 根因）
+			try {
+				const _v = json && json.asset && json.asset.version;
+				console.log( '[GLTFLoader-debug] asset:', JSON.stringify( json && json.asset ), '| version0:', _v && _v[ 0 ], '| fail:', !( json && json.asset ) || ( _v ? _v[ 0 ] < 2 : false ) );
+			} catch ( _e ) { /* ignore */ }
+
 			if ( onError ) onError( new Error( 'THREE.GLTFLoader: Unsupported asset. glTF versions >=2.0 are supported.' ) );
 			return;
 
