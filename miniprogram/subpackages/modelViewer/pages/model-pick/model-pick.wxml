@@ -1,0 +1,32 @@
+<view class="pick-page">
+  <view class="pick-header" style="height: calc({{statusBarHeight}}px + 88rpx)">
+    <view class="bar-content" style="top: {{statusBarHeight}}px">
+      <view class="back-btn" bindtap="onBack">
+        <text class="back-icon">‹</text>
+        <text class="back-text">返回</text>
+      </view>
+      <text class="page-title">选择模型文件</text>
+    </view>
+  </view>
+
+  <!-- 未选择：空态 -->
+  <view class="empty-area" wx:if="{{!picked}}">
+    <text class="empty-icon">🧊</text>
+    <text class="empty-title">选择你的 3D 模型文件</text>
+    <text class="empty-desc">支持从本地文件 / 微信聊天记录中选择</text>
+    <text class="empty-desc">格式：GLB 或自包含 GLTF（资源需完整嵌入）</text>
+    <text class="empty-desc">大小：不超过 50MB</text>
+    <view class="primary-btn" bindtap="onChooseFile">选择 3D 模型文件</view>
+  </view>
+
+  <!-- 已选择：文件信息 + 开始渲染 -->
+  <view class="file-area" wx:else>
+    <text class="file-icon">📦</text>
+    <text class="file-name">{{fileName}}</text>
+    <text class="file-size">{{fileSizeText}}</text>
+    <view class="primary-btn" bindtap="onStartRender">开始渲染</view>
+    <view class="secondary-btn" bindtap="onChooseFile">重新选择</view>
+  </view>
+
+  <view class="tip-text">iOS 选择本地文件：请先将文件发送到「文件传输助手」再选择</view>
+</view>

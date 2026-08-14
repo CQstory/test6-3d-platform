@@ -19,7 +19,7 @@
   "subPackages": [
     {
       "root": "subpackages/modelViewer",
-      "pages": ["pages/viewer/viewer"]
+      "pages": ["pages/viewer/viewer", "pages/model-pick/model-pick", "pages/model-render/model-render"]
     }
   ],
   "preloadRule": {
