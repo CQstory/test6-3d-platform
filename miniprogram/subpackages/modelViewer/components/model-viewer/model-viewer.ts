@@ -394,6 +394,16 @@ Component({
         this._handleLoadError(new Error('模型数据格式错误'), false)
         return
       }
+
+      // 诊断：打印头部字节预览（定位字节还原正确性 / 文件真实格式：glTF=GLB，{=JSON）
+      const headLen = Math.min(48, buf.byteLength)
+      const headBytes = new Uint8Array(buf, 0, headLen)
+      let headPreview = ''
+      for (let i = 0; i < headLen; i++) {
+        const c = headBytes[i]
+        headPreview += c >= 32 && c < 127 ? String.fromCharCode(c) : '.'
+      }
+      console.log('[model-viewer] parse data head:', headPreview, '| len:', buf.byteLength)
       try {
         const THREE = this.data._scoped!.THREE
         const loader = createGLTFLoader(THREE)
@@ -503,6 +513,7 @@ Component({
         let friendly = '模型加载失败'
         if (msg.indexOf('timeout') >= 0 || msg.indexOf('超时') >= 0) friendly = '加载超时，请检查网络后重试'
         else if (msg.indexOf('本地') >= 0) friendly = '本地文件读取失败，请返回重新选择文件'
+        else if (msg.indexOf('Unsupported') >= 0 || msg.indexOf('Unsupported asset') >= 0) friendly = '文件不是有效的 GLB/GLTF 2.0 模型，请重新选择'
         else if (msg.indexOf('fail') >= 0 || msg.indexOf('request') >= 0 || msg.indexOf('网络') >= 0) friendly = '网络请求失败，请检查域名配置或网络连接'
         else if (msg.indexOf('parse') >= 0 || msg.indexOf('解析') >= 0) friendly = '模型格式解析失败'
         this.setData({ loading: false, errorMsg: friendly + '\n(' + msg + ')' })
