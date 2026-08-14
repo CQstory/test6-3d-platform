@@ -395,6 +395,33 @@ Component({
         return
       }
 
+      // 强制归一为真 ArrayBuffer：工具桥接的"类 ArrayBuffer"字节正确但 instanceof 为 false，
+      // GLTFLoader 的 data instanceof ArrayBuffer 检查会失败并误走 json=data 分支（asset undefined 报错）。
+      // 拷贝到全新 Uint8Array，其 .buffer 必为真 ArrayBuffer，并显式校验。
+      try {
+        const srcBytes = new Uint8Array(buf as any)
+        const copy = new Uint8Array(srcBytes.length)
+        copy.set(srcBytes)
+        buf = copy.buffer as ArrayBuffer
+      } catch (_e) {
+        // 极端情况：无法建视图，按下标逐字节拷贝
+        const copy = new Uint8Array(buf.byteLength)
+        let ok = true
+        for (let i = 0; i < copy.length; i++) {
+          const v = (buf as any)[i]
+          if (typeof v !== 'number') {
+            ok = false
+            break
+          }
+          copy[i] = v
+        }
+        buf = ok ? (copy.buffer as ArrayBuffer) : null
+      }
+      if (!buf || !(buf instanceof ArrayBuffer)) {
+        this._handleLoadError(new Error('模型数据格式错误'), false)
+        return
+      }
+
       // 诊断：打印头部字节预览（定位字节还原正确性 / 文件真实格式：glTF=GLB，{=JSON）
       const headLen = Math.min(48, buf.byteLength)
       const headBytes = new Uint8Array(buf, 0, headLen)
@@ -495,28 +522,6 @@ Component({
           'fileLen=' + buf.byteLength
         )
         console.log('[model-viewer] GLB diag contentHead:', content.slice(0, 120))
-
-        // 对照实验：绕过 GLB 二进制分支，直接用 JSON 对象 parse（复刻 GLTFLoader L350 else 分支）
-        // 若 asset 检查通过（不报 Unsupported asset）→ 问题在 GLB 二进制分支/运行文件；
-        // 若同样报 Unsupported asset → GLTFLoader 检查逻辑与磁盘文件不一致（缓存/损坏）
-        if (json) {
-          try {
-            const THREE = this.data._scoped!.THREE
-            const loader = createGLTFLoader(THREE)
-            loader.parse(
-              json,
-              '',
-              () => {
-                console.log('[model-viewer] parse-json: SUCCESS')
-              },
-              (e2: any) => {
-                console.log('[model-viewer] parse-json: FAIL:', e2 && e2.message)
-              }
-            )
-          } catch (e2: any) {
-            console.log('[model-viewer] parse-json: THROW:', e2 && e2.message)
-          }
-        }
       } catch (e: any) {
         console.warn('[model-viewer] GLB diag failed:', e && e.message)
       }
