@@ -440,19 +440,56 @@ Component({
         const view = new DataView(buf)
         const magic = String.fromCharCode(view.getUint8(0), view.getUint8(1), view.getUint8(2), view.getUint8(3))
         const containerVersion = view.getUint32(4, true)
-        const jsonLen = view.getUint32(12, true)
-        if (jsonLen > 5 * 1024 * 1024 || 20 + jsonLen > buf.byteLength) return
-        const jsonChunk = new Uint8Array(buf, 20, jsonLen)
+        const totalLen = view.getUint32(8, true)
+
+        // 完整复刻 GLTFBinaryExtension 的 chunk 遍历（JSON chunk 可能非首个）
+        let chunkIndex = 0
+        const chunks: string[] = []
+        let content = ''
+        while (chunkIndex < totalLen - 12) {
+          const chunkLength = view.getUint32(12 + chunkIndex, true)
+          const chunkType = view.getUint32(12 + chunkIndex + 4, true)
+          const typeName = String.fromCharCode(
+            chunkType & 0xff,
+            (chunkType >> 8) & 0xff,
+            (chunkType >> 16) & 0xff,
+            (chunkType >> 24) & 0xff
+          )
+          chunks.push(typeName + ':' + chunkLength)
+          if (chunkType === 0x4e4f534a && !content) {
+            content = new TextDecoder().decode(new Uint8Array(buf, 12 + chunkIndex + 8, chunkLength))
+          }
+          chunkIndex += 8 + chunkLength
+        }
+
         let json: any = null
         try {
-          json = JSON.parse(new TextDecoder().decode(jsonChunk))
+          json = JSON.parse(content)
         } catch (_e) {
           json = null
         }
+        const version = json && json.asset && json.asset.version
+        // 解码文本是否全 ASCII（若是则 MiniTextDecoder 解码必然正确，排除解码器嫌疑）
+        let allAscii = true
+        for (let i = 0; i < content.length; i++) {
+          if (content.charCodeAt(i) >= 0x80) {
+            allAscii = false
+            break
+          }
+        }
+        // 复刻 GLTFLoader L356 的 asset 检查求值（与报错条件完全一致）
+        const wouldFail = !(json && json.asset) || (version ? version[0] < 2 : false)
         console.log('[model-viewer] GLB diag:', {
           magic,
           containerVersion,
+          totalLen,
+          fileLen: buf.byteLength,
+          chunks,
           asset: json && json.asset,
+          version0: version && version[0],
+          wouldFail,
+          allAscii,
+          contentHead: content.slice(0, 100),
         })
       } catch (e: any) {
         console.warn('[model-viewer] GLB diag failed:', e && e.message)
