@@ -1,6 +1,6 @@
 /** 后端 API 基础地址 */
-//export const API_BASE_URL = 'http://39.101.73.244:26014/api/v1'
-export const API_BASE_URL = 'http://localhost:8000/api/v1'
+export const API_BASE_URL = 'http://39.101.73.244:26014/api/v1'
+// export const API_BASE_URL = 'http://localhost:8000/api/v1'
 /** 是否使用 Mock 数据（后端未就绪时设为 true） */
 export const USE_MOCK = false
 
